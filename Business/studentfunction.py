@@ -4,7 +4,7 @@ from DataProcess.Query import Query
 '''
 在此模块中学生进行考勤　请假 　
 '''
-class Studentcheckin(object):
+class studentcheckin(object):
 
     def studealy(self,stukey,leaveProve):
         '''
