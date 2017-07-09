@@ -1,8 +1,8 @@
 #coding=utf-8
-from abc import ABCMeta, abstractmethod
+import startcheckin
 
-class Business(object):
+'''
+此模块对业务逻辑进行封装　对外提供业务接口　
 
-    __metaclass__ = ABCMeta
 
-    pass
+'''

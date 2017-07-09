@@ -10,7 +10,6 @@ class Check(object):
             Check().re_linecheck(line,row,error,format)
             row=row+1
         return error
-
     def get_Primary_item(self,keys,line):
         key= reduce((lambda x, y: str(x) + ','+str(y)), [line[key] for key in keys if line.has_key(key)], '')
         return key if key else None

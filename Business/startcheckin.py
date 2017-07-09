@@ -5,7 +5,9 @@ import signal
 import datetime
 import random
 import time
+import re
 from    DataProcess.Update  import Update
+import  ConfigParser
 
 '''为了简化自动考勤的操作 对自动考勤进行简化 不对数据的有效性进行分析 假设数据全是有效的 不对时间进行分析假设时间全是有效的 具体的验证放到业务校验模块
     业务校验模块是与界面层的接口
@@ -20,6 +22,11 @@ class Checkin(object):
         self.filename=filename
 
     def Calculation(self,studentfio,path):
+        '''
+
+        通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
+
+        '''
         pass
 
     def Initialization(self,studentinfolist,):
@@ -89,6 +96,10 @@ class checkinNode(object):
         self.auto=None
         self.random=None
         self.key=key
+        cf = ConfigParser.ConfigParser()
+        cf.read('../InData/settings.ini')
+        info = map((lambda x: re.split('-|:', x[1])), cf.items('sectime'))
+        self.Timeinfo = map((lambda x: [int(x[0]) * 3600 + int(x[1]) * 60, int(x[2]) * 3600 + int(x[3]) * 60]), info)
 
     def creatauto(self,studentlist,filename,time):
         if self.auto or self.auto.status:
@@ -115,16 +126,31 @@ class checkinNode(object):
         self.random.newstart(self,studentlist,filename)
 
     def autoreceive(self,student,path):
-        self.auto.receive(student,path)
+        if not self.auto or not self.auto.status:
+            print 'The current automatic attendance window is unable to receive information!'
+            return False
+        return self.auto.receive(student,path)
 
     def randomreceive(self,student,path):
-        self.random.reveive(student,path)
+        if not self.random or not self.random.status:
+            print 'The current random window cannot receive information'
+            return False
+        return self.random.reveive(student,path)
+
 
     def creatManualAttendance(self,studentinfolist):
         pass
 
     def getTime(self):
-        pass
+        localtime= time.localtime()[3]*3600+time.localtime()[4]*60+time.localtime()[5]
+        timeinfo={}
+        for Time in self.Timeinfo:
+            if localtime >= Time[0]-60*10 and localtime <=Time[1]-60*3:
+                timeinfo['endclass']=Time[1]-localtime
+                timeinfo['num']=self.Timeinfo.index(Time)+1
+                timeinfo['beginclass']=Time[0]-localtime
+        return timeinfo
+
 
 class startcheckin(object):
     def __init__(self):
@@ -145,7 +171,7 @@ def my(pid):
     os.kill(pid,signal.SIGTERM)
 
 if __name__=='__main__':
-    s=startcheckin()
+    '''s=startcheckin()
     pid = os.getpid()
     thread = threading.Thread(target=startcheckin.remove, args=(s,))
     thread2 = threading.Thread(target=my, args=(pid,))
@@ -164,7 +190,7 @@ if __name__=='__main__':
             c.autoreceive(stu,str(random.randint(0,1000)))
         s.append(c)
         time.sleep(8)
-
-
+'''
+    print checkinNode('asdasd').getTime()
 
 
