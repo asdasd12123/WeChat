@@ -16,6 +16,7 @@ class Checkin(object):
         self.info =self.Initialization(studentinfolist)
         self.count=0
         self.status=False
+        self.startTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.filename=filename
 
     def Calculation(self,studentfio,path):
@@ -60,7 +61,6 @@ class autothread(Checkin):
         t=threading.Thread(target=autothread.run,args=(self,Time,))
         t.start()
 
-
 class randomthread(Checkin):
 
     '''该线程有个两个子线程 和一个状态变量 平时只运行第一个状态变量 当参数修改时 运行第二个状态变量'''
@@ -71,8 +71,8 @@ class randomthread(Checkin):
             self.status = False
 
     def new_start(self,studentinfolist,filename):
-        if not self.status:
-            Update.update(filename,'w',self.info)
+        if self.status:
+            Update.update(filename,'a',self.info)
         self.count=self.count+1
         self.info=self.Initialization(studentinfolist)
         self.start()
@@ -90,17 +90,26 @@ class checkinNode(object):
         self.random=None
         self.key=key
 
-    def creatauto(self,studentlist,filename):
+    def creatauto(self,studentlist,filename,time):
+        if self.auto or self.auto.status:
+            print 'There are currently automatic attendance Windows that cannot be created again !'
+            return False
         self.auto=autothread(studentlist,filename)
+        self.auto.start(time)
+        self.auto.status=True
+        return True
 
     def creatrandom(self,studentlist,filename):
+        if not self.auto or not  self.auto.status:
+            print 'Currently the attendance node does not open automatic attendance is unable to open random check on work attendance !'
+            return False
+        if self.random:
+            print 'There are currently automatic attendance Windows that cannot be created again !'
+            return False
         self.random=randomthread(studentlist,filename)
-
-    def autostart(self,time):
-        self.auto.start(time)
-
-    def randomstart(self):
         self.random.start()
+        self.random.status=True
+        return True
 
     def random_new_start(self,studentlist,filename):
         self.random.newstart(self,studentlist,filename)
@@ -111,6 +120,12 @@ class checkinNode(object):
     def randomreceive(self,student,path):
         self.random.reveive(student,path)
 
+    def creatManualAttendance(self,studentinfolist):
+        pass
+
+    def getTime(self):
+        pass
+
 class startcheckin(object):
     def __init__(self):
         self.list=[]
@@ -118,9 +133,7 @@ class startcheckin(object):
     def remove(self):
         while True:
             for line in self.list:
-                if not line.auto.status:
-                    for info in line.auto.info:
-                        print info
+                if not line.auto.status and not line.random.status:
                     self.list.remove(line)
                     time.sleep(1)
 
