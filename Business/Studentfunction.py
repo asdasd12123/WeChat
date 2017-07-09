@@ -1,32 +1,42 @@
+#coding=utf-8
 from DataProcess.Query import Query
 
 '''
-在此模块中学生进行考勤　请假　查看个人考勤记录　
+在此模块中学生进行考勤　请假 　
 '''
+class Studentcheckin(object):
 
-class Studentfunction(object):
-
-    def __init__(self):
-        pass
-
-    def studealy(self):
+    def studealy(self,stukey,leaveProve):
         '''
-        学生请假
+        学生请假 若信息合法则返回格式化的数据　反正返回None
         '''
-        pass
+        stuinfo=Query.QueryObjectInfo("",stukey)
+        if not stuinfo:
+            print 'Identity failed!'
+            return None
 
-    def autocheckin(self):
+        stukey['leaveProve']=leaveProve
+        return stuinfo
+
+
+    def checkin(self,stukey,type,prove):
         '''
         学生响应总考勤
         '''
-        pass
+        if type not in ['auto','random']:
+            print 'Checking attendance is wrong!'
+            return False
 
-    def randomcheckin(self):
-        '''
-        学生响应随机考勤
-        '''
-        pass
+        stuinfo = Query.QueryObjectInfo("", stukey)
+        if not stuinfo:
+            print 'Identity failed!'
+            return None
 
-    def viewrecord(self):
-        '''学生查看个人考勤记录'''
-        pass
+        stukey['Prove'] = prove
+        stukey['type']=type
+        return stuinfo
+
+
+if __name__=='__main__':
+    key={'StuID':'201416920220'}
+    print Studentcheckin().checkin(key,'auto','xasdasdasd')
