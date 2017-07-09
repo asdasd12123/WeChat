@@ -1,4 +1,5 @@
 #coding=utf-8
+from abc import ABCMeta, abstractmethod
 import threading
 import os
 import signal
@@ -9,11 +10,17 @@ import re
 from    DataProcess.Update  import Update
 import  ConfigParser
 
-'''为了简化自动考勤的操作 对自动考勤进行简化 不对数据的有效性进行分析 假设数据全是有效的 不对时间进行分析假设时间全是有效的 具体的验证放到业务校验模块
+'''为了简化考勤的操作 对考勤进行简化 不对数据的有效性进行分析 假设数据全是有效的 不对时间进行分析假设时间全是有效的 具体的验证放到业务校验模块
     业务校验模块是与界面层的接口
 '''
 
 class Checkin(object):
+
+    '''
+    考勤类是自动考勤和随机考勤的父类　
+    '''
+    __metaclass__ = ABCMeta
+
     def __init__(self,studentinfolist,filename):
         self.info =self.Initialization(studentinfolist)
         self.count=0
@@ -25,11 +32,16 @@ class Checkin(object):
         '''
 
         通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
-
+        此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
         pass
 
     def Initialization(self,studentinfolist,):
+
+        '''
+        格式化初始数据　
+        '''
+
         info=[]
         keys = ['StuID', 'checkTime', 'ProofPath', 'checkinType', 'IsSucc', 'checkinResult']
         for line in studentinfolist:
@@ -56,8 +68,20 @@ class Checkin(object):
                 self.Calculation(studentinfo,path)
         return True
 
+    @abstractmethod
+    def start(self,*args):
+        pass
+
+    @abstractmethod
+    def run(self,*args):
+        pass
+
 
 class autothread(Checkin):
+
+    '''
+    自动考勤类
+    '''
 
     def run(self,Time):
         time.sleep(Time)
@@ -88,7 +112,6 @@ class randomthread(Checkin):
     def start(self):
         t = threading.Thread(target=randomthread.run, args=(self,self.count,))
         t.start()
-
 
 
 class checkinNode(object):
@@ -138,8 +161,8 @@ class checkinNode(object):
         return self.random.reveive(student,path)
 
 
-    def creatManualAttendance(self,studentinfolist):
-        pass
+    def creatManualAttendance(self,studentinfolist,filename):
+        return Update.update(filename,'w',studentinfolist)
 
     def getTime(self):
         localtime= time.localtime()[3]*3600+time.localtime()[4]*60+time.localtime()[5]
@@ -150,6 +173,10 @@ class checkinNode(object):
                 timeinfo['num']=self.Timeinfo.index(Time)+1
                 timeinfo['beginclass']=Time[0]-localtime
         return timeinfo
+
+    def Realtimeresults(self):
+        '''查看实时考勤结果'''
+        pass
 
 
 class startcheckin(object):
