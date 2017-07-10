@@ -4,38 +4,57 @@ from DataProcess.Query import Query
 '''
 在此模块中学生进行考勤　请假 　
 '''
+
+def Modification(fun):
+    def wrapper(self):
+        fun(self)
+        stuinfo =studentcheckin().getstukey()
+        if not stuinfo:
+            return None
+        stuinfo['Prove'] = raw_input('Please enter your proof of attendance!')
+        return stuinfo
+    return wrapper
+
+
+
 class studentcheckin(object):
 
-    def studealy(self,stukey,leaveProve):
+    def getstukey(self):
+        stukey = {}
+        stukey['StuID'] = raw_input('Please input your student number！')
+        stukey['ClassID'] = raw_input('Please input your class!')
+        stuinfo = Query.QueryObjectInfo('../InData/studentInfo.csv', stukey)
+        if not stuinfo:
+            print 'Identity failed!'
+            return None
+        return stuinfo[0]
+
+
+    def studealy(self):
         '''
         学生请假 若信息合法则返回格式化的数据　反正返回None
         '''
-        stuinfo=Query.QueryObjectInfo("",stukey)
+
+        stuinfo=self.getstukey()
+
         if not stuinfo:
-            print 'Identity failed!'
             return None
 
-        stukey['leaveProve']=leaveProve
+        stuinfo['leaveProve']=raw_input('Please enter your proof of leave!')
+
         return stuinfo
 
 
-    def checkin(self,stukey,type,prove):
-        '''
-        学生响应总考勤
-        '''
-        if type not in ['auto','random']:
-            print 'Checking attendance is wrong!'
-            return False
+    @Modification
+    def checkinauto(self):
+        pass
 
-        stuinfo = Query.QueryObjectInfo("", stukey)
-        if not stuinfo:
-            print 'Identity failed!'
-            return None
-
-        stukey['Prove'] = prove
-        stukey['type']=type
-        return stuinfo
+    @Modification
+    def checkinrandom(self):
+        pass
 
 
 if __name__=='__main__':
-    key={'StuID':'201416920220'}
+
+    #studentcheckin().getstukey()
+    studentcheckin().checkinauto()

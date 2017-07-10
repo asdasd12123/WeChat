@@ -25,7 +25,7 @@ class Checkin(object):
         self.startTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.filename=filename
 
-    def Calculation(self,studentfio,path):
+    def Calculation(self,studentfio):
         '''
 
         通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
