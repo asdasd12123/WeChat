@@ -25,7 +25,7 @@ class checkinNode(baseattendance):
 
         studentlist=Query.QueryObjectInfo('../InData/studentInfo.csv',{'ClassID':self.key['ClassName']})
         self.auto=autothread(studentlist,self.filename)
-        self.auto.start(15)
+        self.auto.start(3)
         self.auto.status=True
         return True
 
@@ -108,13 +108,13 @@ class startcheckin(object):
     def remove(self):
         while True:
             for line in self.list:
-                if not line.auto.status and not line.random.status:
+                if line.auto and not line.auto.status and not line.random.status:
                     self.list.remove(line)
                     time.sleep(1)
 
     def append(self,argu):
-        for (key,item) in self.list:
-            if not (argu['TeacherID']!=self.list['TeacherID'] and argu['ClassID'] !=self.list['TeacherID']):
+        for item in self.list:
+            if not (argu.key['TeacherID']!=item.key['TeacherID'] and argu.key['ClassID'] !=item.key['TeacherID']):
                 print 'Attendance object is illegal or already exists！'
                 return False
         self.list.append(argu)

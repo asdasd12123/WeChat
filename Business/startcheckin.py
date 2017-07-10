@@ -22,22 +22,34 @@ class Checkin(object):
         self.info =self.Initialization(studentinfolist)
         self.count=0
         self.status=False
-        self.startTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.startTime=datetime.datetime.now()
         self.filename=filename
 
-    def Calculation(self,studentfio):
+    def Calculation(self,line,studentfio):
         '''
 
         通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
         此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
-        studentfio['checkTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        studentfio['checkinType'] = 'auto'
-        studentfio['ProofPath'] =studentfio['Prove']
-        studentfio['IsSucc'] = 'True'
-        return False
-
-
+        line['checkTime'] = datetime.datetime.now()
+        line['checkinType'] = 'auto'
+        line['ProofPath'] =studentfio['Prove']
+        num=random.randint(0,1)
+        if num:
+            line['IsSucc'] = 'True'
+            seconds=(line['checkTime'] - self.startTime).seconds
+            if seconds<3:
+                print 'Successful attendance'
+                line['checkinResult']='normal'
+            else:
+                print 'You are Late！'
+                line['checkinResult'] = 'Late'
+        else:
+            print 'Invalid attendance certificate！'
+            line['IsSucc'] = 'False'
+            line['checkinResult']='Absence'
+        line['checkTime'] = str(datetime.datetime.now())[:-7]
+        return line
 
     def Initialization(self,studentinfolist):
         '''
@@ -53,18 +65,22 @@ class Checkin(object):
             data['ProofPath'] = 'null'
             data['checkinType'] = 'null'
             data['IsSucc'] = 'null'
-            data['checkinResukt'] =str(random.randint(0,1))
+            data['checkinResult'] ='null'
             info.append(data)
         return info
 
-
     def receive(self,studentinfo):  #此函数会计算考勤结果 此函数待后续在写
+        if not self.status:
+            print 'The time window is closed and unable to receive attendance information！'
+            return False
         for line in self.info:
             if line['StuID']==studentinfo['StuID']:
                 if line['IsSucc']!='null':
                     print 'studeng '+line['StuID']+' have checkin!'
                     return False
-                return self.Calculation(studentinfo)
+                self.info[self.info.index(line)]= self.Calculation(line,studentinfo)
+                return True
+        print 'The information you entered does not belong to the check in window or the check in window has not been opened yet！'
         return False
 
 
