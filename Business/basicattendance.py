@@ -14,7 +14,7 @@ class baseattendance(object):
     def __init__(self):  # 主键就是课程号加上班级号　若不存在则无法签到
         self.auto = None
         self.random = None
-        self.key = {'TeacherID':'2004633','ClassName':'软件工程1401','CourseName':'软件工程概论'}
+        self.key =self.getkey()
         self.filename = None
         cf = ConfigParser.ConfigParser()
         cf.read('../InData/settings.ini')

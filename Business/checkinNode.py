@@ -1,12 +1,11 @@
 #coding=utf-8
 from startcheckin import autothread,randomthread
 import time
-import threading
+from
 from basicattendance import baseattendance
 from DataProcess.Update import Update
 from DataProcess.Query import Query
 import random
-import os
 
 class checkinNode(baseattendance):
 
@@ -25,7 +24,7 @@ class checkinNode(baseattendance):
 
         studentlist=Query.QueryObjectInfo('../InData/studentInfo.csv',{'ClassID':self.key['ClassName']})
         self.auto=autothread(studentlist,self.filename)
-        self.auto.start(3)
+        self.auto.start(10)
         self.auto.status=True
         return True
 
@@ -108,9 +107,11 @@ class startcheckin(object):
     def remove(self):
         while True:
             for line in self.list:
-                if line.auto and not line.auto.status and not line.random.status:
-                    self.list.remove(line)
-                    time.sleep(1)
+                if line.auto and not line.auto.status or not line.auto:
+                    if line.random and not line.random.status or not line.random:
+                        print line.key
+                        self.list.remove(line)
+                        time.sleep(1)
 
     def append(self,argu):
         for item in self.list:
