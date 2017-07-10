@@ -32,7 +32,6 @@ class Read(object):
                 return data
 
         except IOError:
-            print "File open error : " + filename + "\nplease check the filename"
             return []
 
 if __name__=='__main__':

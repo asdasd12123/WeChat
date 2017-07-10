@@ -25,5 +25,5 @@ class Add(object):
             return False
 
 if __name__=='__main__':
-    read=Read().read('songjian.csv')
-    Add().add('songjian.csv',read)
+    read=Read().read('course.csv')
+    Add().add('songjian123.csv',read)

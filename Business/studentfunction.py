@@ -39,4 +39,3 @@ class studentcheckin(object):
 
 if __name__=='__main__':
     key={'StuID':'201416920220'}
-    print Studentcheckin().checkin(key,'auto','xasdasdasd')

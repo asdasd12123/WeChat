@@ -7,12 +7,11 @@ class Query(object):
     @staticmethod
     def QueryObjectKey(object):
         '''返回目标的键 也可查询含有合法信息的文件是否存在 若不存在则返回None'''
-        if os.path.isfile(object):
-            pattern = re.compile(r'.+\.csv$', re.I)
-            if not pattern.match(object):
-                return []
-            elif DataLayerInterface(object,'r').run():
-                return sorted(DataLayerInterface(object,'r').run()[0].keys())
+        pattern = re.compile(r'.+\.csv$', re.I)
+        if not pattern.match(object):
+            return []
+        elif DataLayerInterface(object,'r').run():
+            return sorted(DataLayerInterface(object,'r').run()[0].keys())
         return []
 
     @staticmethod
@@ -22,13 +21,17 @@ class Query(object):
         if Query.QueryObjectKey(filename):
             return DataLayerInterface(filename,'r',parameter).run()
 
-        data=[]
-        list=Query.QueryNameByInfo(Query.QueryObjectKey)
-        for line in list:
-            info = DataLayerInterface(line,'r',parameter).run()
-            if info and parameter:
-                data.append(info)
-        return data
+        elif not filename:
+            data=[]
+            list=Query.QueryNameByInfo(Query.QueryObjectKey)
+            for line in list:
+                info = DataLayerInterface(line,'r',parameter).run()
+                if info and parameter:
+                    data.append(info)
+            return data
+
+        else:
+            return []
 
     @staticmethod
     def QueryPermisson(UserID,filename):
@@ -61,7 +64,7 @@ class Query(object):
 
 
 if __name__ == '__main__':
-    print Query.QueryObjectKey('../InData/course.csv')
+    print Query.QueryObjectInfo('../InData/coadasdasdadrse.csv')
     #print Query.QueryPermisson({'root':'0'},'a.txt')
     #print Query.QueryObjectInfo('')
 

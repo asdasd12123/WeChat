@@ -1,72 +1,31 @@
 #coding=utf-8
 from startcheckin import autothread,randomthread
 import time
-import ConfigParser
-import re
+import threading
+from basicattendance import baseattendance
 from DataProcess.Update import Update
 from DataProcess.Query import Query
-import datetime
 import random
+import os
 
-class checkinNode(object):
-    def __init__(self):  #主键就是课程号加上班级号　若不存在则无法签到
-        self.auto=None
-        self.random=None
-        self.key=None
-        self.filename=None
-        cf = ConfigParser.ConfigParser()
-        cf.read('../InData/settings.ini')
-        info = map((lambda x: re.split('-|:', x[1])), cf.items('sectime'))
-        self.Timeinfo = map((lambda x: [int(x[0]) * 3600 + int(x[1]) * 60, int(x[2]) * 3600 + int(x[3]) * 60]), info)
-
-
-    def getkey(self):
-        checkinkey = {}
-        checkinkey['TeacherID'] = raw_input('Please enter the TeacherID you want to check in!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
-            print 'The teacher does not exist. Please check your input!'
-            return False
-
-        checkinkey['CourseName'] = raw_input('Please input your CourseName!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
-            print 'The Course does not exist Or in your class head. Please check your input!'
-            return False
-
-        checkinkey['ClassName'] = raw_input('Please input your className!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
-            print 'This class does not exist.Please check your input'
-            return False
-
-        return checkinkey
-
-
-    def getseqnum(self):
-        seqnum=Query.QueryObjectInfo('../InData/seq',self.key)['seqID']
-        if not seqnum:
-            return '1'
-        return str(int(seqnum)+1)
-
+class checkinNode(baseattendance):
 
     def creatauto(self):
-        if self.auto or self.auto.status:
+        if self.auto :
             print 'There are currently automatic attendance Windows that cannot be created again !'
             return False
 
-        Time=self.getTime()
+        '''Time=self.getTime()
         if not Time:
             print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
-        return False
+            return False
+        '''
+        self.write_seq()
+        self.write_detail_head(['StuID', 'checkTime', 'ProofPath', 'checkinType', 'IsSucc', 'checkinResult'])
 
-        seqinfo = {'TeacherID': self.key['TeacherID'], 'ClassName': self.key['ClassName']}
-        seqnum = self.getseqnum(seqinfo)
-        self.filename = self.key['TeacherID'] + '_' + self.key['ClassName'] + '_' + seqnum + '.csv'
-        seqinfo['StartTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        seqinfo = seqnum
-
-        Update.update(filename, 'a', seqinfo)
         studentlist=Query.QueryObjectInfo('../InData/studentInfo.csv',{'ClassID':self.key['ClassName']})
         self.auto=autothread(studentlist,self.filename)
-        self.auto.start(Time)
+        self.auto.start(15)
         self.auto.status=True
         return True
 
@@ -87,24 +46,35 @@ class checkinNode(object):
 
 
     def randomstulist(self):
-        num=input('Please enter a percentage of the spot checks!')
-        stulist=set()
+        stulist = []
         studentlist = Query.QueryObjectInfo('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})
-        if type(num)!=float or num<=0 or num > 1:
-            print 'The percentage currently entered is illegal！'
-            return None
 
-        num=int(len(studentlist)*num)
-        while len(stulist)==num:
-            index=random.randint(0,num-1)
-            stulist.add(studentlist[index])
+        while True:
+            num=raw_input('Please enter a percentage of the spot checks!')
+            try:
+                num=float(num)
+            except TypeError and ValueError:
+                print 'You have entered an invalid format. Please enter a floating point number!'
+                continue
 
-        return list(stulist)
+            if num<=0 or num>100 or int(len(studentlist) * num / 100)==0:
+                print 'Number exceeds or below standard. Please re-enter!'
+                time.sleep(1)
+            else:
+                num = int(len(studentlist) * num / 100)
+                print 'You have a total of %d people selected this time!' %(num)
+                break
+
+        while len(stulist)!=num:
+            index=random.randint(0,len(studentlist)-1)
+            if studentlist[index] not in stulist:
+                stulist.append(studentlist[index])
+        return stulist
 
 
     def random_new_start(self):
         studentlist=self.randomstulist()
-        self.random.newstart(self,studentlist,self.filename)
+        self.random.new_start(studentlist,self.filename)
 
 
     def autoreceive(self,student):
@@ -124,15 +94,6 @@ class checkinNode(object):
 
     def creatManualAttendance(self,studentinfolist,filename):
         return Update.update(filename,'w',studentinfolist)
-
-
-    def getTime(self):
-        localtime= time.localtime()[3]*3600+time.localtime()[4]*60+time.localtime()[5]
-        timeinfo={}
-        for Time in self.Timeinfo:
-            if localtime >= Time[0]-60*10 and localtime <=Time[1]-60*3:
-                timeinfo['endclass']=Time[1]-localtime
-        return timeinfo
 
 
     def Realtimeresults(self):
@@ -158,3 +119,19 @@ class startcheckin(object):
                 return False
         self.list.append(argu)
         return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

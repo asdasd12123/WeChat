@@ -1,8 +1,6 @@
 #coding=utf-8
 from abc import ABCMeta, abstractmethod
 import threading
-import os
-import signal
 import datetime
 import random
 import time
@@ -87,7 +85,7 @@ class autothread(Checkin):
 
     def run(self,Time):
         time.sleep(Time)
-        Update.update(self.filename,'w',self.info)
+        Update.update(self.filename,'a',self.info)
         self.status=False
 
     def start(self,Time):
@@ -100,7 +98,7 @@ class randomthread(Checkin):
     def run(self,count):
         time.sleep(5)
         if self.count==count:
-            Update.update(self.filename, 'w', self.info)
+            Update.update(self.filename, 'a', self.info)
             self.status = False
 
     def new_start(self,studentinfolist,filename):
@@ -117,32 +115,5 @@ class randomthread(Checkin):
 
 
 
-
-def my(pid):
-    time.sleep(10)
-    os.kill(pid,signal.SIGTERM)
-
-if __name__=='__main__':
-    '''s=startcheckin()
-    pid = os.getpid()
-    thread = threading.Thread(target=startcheckin.remove, args=(s,))
-    thread2 = threading.Thread(target=my, args=(pid,))
-    thread.start()
-    thread2.start()
-    while True:
-        Stu=[]
-        c=checkinNode('hhh')
-        for index in range(10):
-            stu={'StuID':str(index)}
-            Stu.append(stu)
-        c.creatauto(Stu,'a.csv')
-        c.autostart(8)
-        for index in range(10):
-            stu={'StuID':str(random.randint(0,9))}
-            c.autoreceive(stu,str(random.randint(0,1000)))
-        s.append(c)
-        time.sleep(8)
-'''
- #   print checkinNode('asdasd').getTime()
 
 

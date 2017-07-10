@@ -7,7 +7,7 @@ class Update(object):
 
     @staticmethod
     def update(filename,Type,outdata,keys=[]):
-        '''更新数据 可以覆盖 添加 和追加到文件末尾'''
+        '''更新数据 可以覆盖 添加 和追加到文件末尾  外部数据必须是以列表为容器　元素是字典  '''
         error=Check.formatcheck(outdata)
         if Check.getresult(error):
             print error
