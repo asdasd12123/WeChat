@@ -18,12 +18,14 @@ class Checkin(object):
     '''
     __metaclass__ = ABCMeta
 
-    def __init__(self,studentinfolist,filename):
+    def __init__(self,studentinfolist,filename,rule):
         self.info =self.Initialization(studentinfolist)
         self.count=0
         self.status=False
+        self.rule=rule
         self.startTime=datetime.datetime.now()
         self.filename=filename
+        self.type=None
 
     def Calculation(self,line,studentfio):
         '''
@@ -32,18 +34,21 @@ class Checkin(object):
         此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
         line['checkTime'] = datetime.datetime.now()
-        line['checkinType'] = 'auto'
         line['ProofPath'] =studentfio['Prove']
+        line['checkinType']=self.type
         num=random.randint(0,1)
         if num:
             line['IsSucc'] = 'True'
             seconds=(line['checkTime'] - self.startTime).seconds
-            if seconds<3:
+            if seconds<=int(self.rule['late'])*60:
                 print 'Successful attendance'
                 line['checkinResult']='normal'
-            else:
+            elif seconds>int(self.rule['late'])*60 and seconds <=int(self.rule['absence'])*60:
                 print 'You are Late！'
                 line['checkinResult'] = 'Late'
+            else:
+                print 'I\'m sorry, but you have been certified absent!'
+                line['checkinResult'] = 'absence'
         else:
             print 'Invalid attendance certificate！'
             line['IsSucc'] = 'False'
@@ -57,10 +62,10 @@ class Checkin(object):
         '''
 
         info=[]
-        keys = ['StuID', 'checkTime', 'ProofPath', 'checkinType', 'IsSucc', 'checkinResult']
         for line in studentinfolist:
             data = {}
             data['StuID'] = line['StuID']
+            data['checkstartTime']=str(datetime.datetime.now())[:-7]
             data['checkTime'] = 'null'
             data['ProofPath'] = 'null'
             data['checkinType'] = 'null'
@@ -111,22 +116,22 @@ class autothread(Checkin):
 class randomthread(Checkin):
 
     '''该线程有个两个子线程 和一个状态变量 平时只运行第一个状态变量 当参数修改时 运行第二个状态变量'''
-    def run(self,count):
-        time.sleep(5)
+    def run(self,count,Time):
+        time.sleep(Time)
         if self.count==count:
             Update.update(self.filename, 'a', self.info)
             self.status = False
 
-    def new_start(self,studentinfolist,filename):
+    def new_start(self,studentinfolist,filename,Time):
         if self.status:
             Update.update(filename,'a',self.info)
         self.count=self.count+1
         self.info=self.Initialization(studentinfolist)
-        self.start()
+        self.start(Time)
 
 
-    def start(self):
-        t = threading.Thread(target=randomthread.run, args=(self,self.count,))
+    def start(self,Time):
+        t = threading.Thread(target=randomthread.run, args=(self,self.count,Time))
         t.start()
 
 

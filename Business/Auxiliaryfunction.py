@@ -14,14 +14,23 @@ class Auxiliaryfunction(object):
     def addset(self,key):
         info={}
         info['TeacherID']=key
-        print 'Please enter the distance to start the check on how long it is to be late (Company ：minute)！'
+        print 'Please enter the distance to start the check on how long it is to be (Company ：(0-20)minute)！'
         info['autolate']=self.getresult()
-        print 'Please enter the distance to start the check on how long it is to be absence (Company :minute)!'
+        print 'Please enter the distance to start the check on how long it is to be absence (Company :(0-20)minute)!'
         info['autoabsence']=self.getresult()
-        print 'Please enter the distance to start the random check on how long it is to be late (Company ：minute)！'
+
+        if info['autolate']<=info['autoabsence']:
+            print '缺勤的等待时间必须大于迟到的等待时间'
+            return None
+
+        print 'Please enter the distance to start the random check on how long it is to be late (Company ：(0-20)minute)！'
         info['randomlate'] = self.getresult()
-        print 'Please enter the distance to start the random check on how long it is to be absence (Company :minute)!'
+        print 'Please enter the distance to start the random check on how long it is to be absence (Company :(0-20)minute)!'
         info['randomabsence'] = self.getresult()
+        if info['randomlate']<=info['randomabsence']:
+            print '缺勤的等待时间必须大于迟到的等待时间'
+            return None
+
         info['Type']='False'
         return Update.update('../InData/set.csv','w',[info])
 
@@ -67,7 +76,7 @@ class Auxiliaryfunction(object):
                 print 'You have entered an invalid format. Please enter a floating point number!'
                 continue
 
-            if num<=0 or num>60 :
+            if num<=0 or num>20 :
                 print 'Exceeded maximum accommodation !'
                 time.sleep(1)
             else:

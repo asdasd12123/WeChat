@@ -5,18 +5,6 @@ from DataProcess.Query import Query
 在此模块中学生进行考勤　请假 　
 '''
 
-def Modification(fun):
-    def wrapper(self):
-        fun(self)
-        stuinfo =studentcheckin().getstukey()
-        if not stuinfo:
-            return None
-        stuinfo['Prove'] = raw_input('Please enter your proof of attendance!')
-        return stuinfo
-    return wrapper
-
-
-
 class studentcheckin(object):
 
     def getstukey(self):
@@ -38,17 +26,16 @@ class studentcheckin(object):
         stuinfo=self.getstukey()
         if not stuinfo:
             return None
-        stuinfo['leaveProve']=raw_input('Please enter your proof of leave!')
+        stuinfo['Prove']=raw_input('Please enter your proof of leave!')
         return stuinfo
 
 
-    @Modification
-    def checkinauto(self):
-        pass
-
-    @Modification
-    def checkinrandom(self):
-        pass
+    def checkin(self):
+        stuinfo = studentcheckin().getstukey()
+        if not stuinfo:
+            return None
+        stuinfo['Prove'] = raw_input('Please enter your proof of attendance!')
+        return stuinfo
 
 
 if __name__=='__main__':

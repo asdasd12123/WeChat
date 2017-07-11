@@ -1,7 +1,6 @@
 #coding=utf-8
 from startcheckin import autothread,randomthread
 import time
-import datetime
 from Auxiliaryfunction import Auxiliaryfunction
 from basicattendance import baseattendance
 from DataProcess.Update import Update
@@ -16,19 +15,21 @@ class checkinNode(baseattendance):
             print 'There are currently automatic attendance Windows that cannot be created again !'
             return False
 
-        Time=self.getTime()
-        if not Time:
-            print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
-            #return False
-
-        self.write_seq()
-        rule=Auxiliaryfunction().read({'TeacherID':self.key['TeacherID']})
+        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
         studentlist = Query.QueryObjectInfo('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})
+
         while True:
-            print '您采用的考勤规则为 :'+str(rule)
-            print '当前课程名称 : %s 当前考勤班级 %s 当前被考勤人数 %d 当前考勤类型 %s ' %(self.key['CourseName'],self.key['ClassName'],
+
+            Time = self.getTime()
+            if not Time:
+                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
+                return False
+
+            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['autolate'],rule['autoabsence'])
+            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
                     len(studentlist),'Auto')
-            print '当前考勤的有效时间为 %s 分钟 当前距离考勤结束还有%d 分钟' %(rule['autolate'],10000)
+            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['autolate'],Time['nowbetweenstart']/60,
+                                                                  Time['endclass']/60)
             result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
             if result=='yes':
                 break
@@ -37,10 +38,12 @@ class checkinNode(baseattendance):
             else:
                 time.sleep(1)
 
-        self.write_detail_head(['StuID', 'checkstartTime','checkTime', 'ProofPath', 'checkinType', 'IsSucc', 'checkinResult'])
-        #self.auto=autothread(studentlist,self.filename)
-        #self.auto.start(10)
-        #self.auto.status=True
+        self.write_seq()
+        self.auto=autothread(studentlist,self.filename,rule)
+        self.auto.type='auto'
+        self.auto.rule={'late':rule['autolate'],'absence':rule['autoabsence']}
+        self.auto.start(30)
+        self.auto.status=True
         return True
 
 
@@ -53,10 +56,35 @@ class checkinNode(baseattendance):
             return False
 
         studentlist =self.randomstulist()
-        self.random=randomthread(studentlist,self.filename)
-        self.random.start()
+        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
+
+        while True:
+
+            Time = self.getTime()
+            if not Time:
+                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
+                return False
+
+            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['randomlate'],rule['randomabsence'])
+            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
+                    len(studentlist),'Random')
+            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['randomlate'],Time['nowbetweenstart']/60,
+                                                                  Time['endclass']/60)
+            result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
+            if result=='yes':
+                break
+            elif result=='exit':
+                return False
+            else:
+                time.sleep(1)
+
+        self.random=randomthread(studentlist,self.filename,rule)
+        self.random.type='random'
+        self.random.rule={'late':rule['randomlate'],'absence':rule['randomabsence']}
+        self.random.start(20)
         self.random.status=True
         return True
+
 
 
     def randomstulist(self):
@@ -88,7 +116,7 @@ class checkinNode(baseattendance):
 
     def random_new_start(self):
         studentlist=self.randomstulist()
-        self.random.new_start(studentlist,self.filename)
+        self.random.new_start(studentlist,self.filename,20)
 
 
     def autoreceive(self,student):
@@ -124,7 +152,6 @@ class startcheckin(object):
             for line in self.list:
                 if line.auto and not line.auto.status or not line.auto:
                     if line.random and not line.random.status or not line.random:
-                        print line.key
                         self.list.remove(line)
                         time.sleep(1)
 

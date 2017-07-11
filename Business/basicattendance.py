@@ -60,13 +60,6 @@ class baseattendance(object):
                 timeinfo['nowbetweenstart']=localtime-Time[0] if (localtime -Time[0])>=0 else Time[0]-localtime
         return timeinfo
 
-    def write_detail_head(self,keylist):
-        head = {}
-        for key in keylist:
-            head[key] = key
-        return Update.update(self.filename, 'a', [head])
-
-
     def write_seq(self):
         if not Query.QueryObjectKey('../InData/seq.csv'):
             print 'The system creates the seq.csv file automatically！'

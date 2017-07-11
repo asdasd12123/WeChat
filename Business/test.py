@@ -7,7 +7,7 @@ import os
 import signal
 
 def my(pid):
-    time.sleep(120)
+    time.sleep(50)
     os.kill(pid,signal.SIGKILL)
 
 if __name__=='__main__':
@@ -24,11 +24,19 @@ if __name__=='__main__':
     while True:
         c=checkinNode()
         c.creatauto()
-        c.auto.receive()
+        c.auto.receive(key)
         c.auto.receive(key2)
         c.auto.receive(key3)
         s.append(c)
-
+        c.creatrandom()
+        c.random.receive(key)
+        c.random.receive(key2)
+        c.random.receive(key3)
+        time.sleep(10)
+        c.random_new_start()
+        c.random.receive(key)
+        c.random.receive(key2)
+        c.random.receive(key3)
     # c.creatauto()
     #d.creatauto()
 
