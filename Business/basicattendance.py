@@ -23,10 +23,12 @@ class baseattendance(object):
 
     def getkey(self):
         checkinkey = {}
-        checkinkey['TeacherID'] = raw_input('Please enter the TeacherID you want to check in!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
+        info={}
+        info['WeChatID'] = raw_input('Please enter the WeChatID you want to check in!\n')
+        if not Query.QueryObjectInfo('',info):
             print 'The teacher does not exist. Please check your input!'
             return False
+        checkinkey['TeacherID'] = Query.QueryObjectInfo('', info)[0][0]['TeacherID']
 
         checkinkey['CourseName'] = raw_input('Please input your CourseName!\n')
         if not Query.QueryObjectInfo('', checkinkey):
@@ -37,6 +39,7 @@ class baseattendance(object):
         if not Query.QueryObjectInfo('', checkinkey):
             print 'This class does not exist.Please check your input'
             return False
+
 
         return checkinkey
 
@@ -51,8 +54,10 @@ class baseattendance(object):
         localtime= time.localtime()[3]*3600+time.localtime()[4]*60+time.localtime()[5]
         timeinfo={}
         for Time in self.Timeinfo:
-            if localtime >= Time[0]-60*10 and localtime <=Time[1]-60*3:
+            if localtime >= Time[0]-600 and localtime <=Time[1]-59:
                 timeinfo['endclass']=Time[1]-localtime
+                timeinfo['num']=self.Timeinfo.index(Time)+1
+                timeinfo['nowbetweenstart']=localtime-Time[0] if (localtime -Time[0])>=0 else Time[0]-localtime
         return timeinfo
 
     def write_detail_head(self,keylist):
