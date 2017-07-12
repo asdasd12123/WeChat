@@ -17,7 +17,6 @@ class Query(object):
     @staticmethod
     def QueryObjectInfo(filename="",parameter=None):
         '''给定字典查询指定文件中满足字典的信息 可以使用通配符'''
-
         if Query.QueryObjectKey(filename):
             return DataLayerInterface(filename,'r',parameter).run()
 

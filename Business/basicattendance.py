@@ -2,8 +2,7 @@
 from abc import ABCMeta, abstractmethod
 import ConfigParser
 import re
-from DataProcess.Query import Query
-from DataProcess.Update import Update
+from DataProcess.DataProcess import DataProcess
 import time
 import datetime
 
@@ -25,18 +24,18 @@ class baseattendance(object):
         checkinkey = {}
         info={}
         info['WeChatID'] = raw_input('Please enter the WeChatID you want to check in!\n')
-        if not Query.QueryObjectInfo('',info):
+        if not DataProcess(target=DataProcess.QueryObjectInfo,args=('',info)).run():
             print 'The teacher does not exist. Please check your input!'
             return False
-        checkinkey['TeacherID'] = Query.QueryObjectInfo('', info)[0][0]['TeacherID']
+        checkinkey['TeacherID'] = DataProcess(target=DataProcess.QueryObjectInfo,args=('', info)).run()[0][0]['TeacherID']
 
         checkinkey['CourseName'] = raw_input('Please input your CourseName!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
+        if not DataProcess(target=DataProcess.QueryObjectInfo,args=('', checkinkey)).run():
             print 'The Course does not exist Or in your class head. Please check your input!'
             return False
 
         checkinkey['ClassName'] = raw_input('Please input your className!\n')
-        if not Query.QueryObjectInfo('', checkinkey):
+        if not DataProcess(target=DataProcess.QueryObjectInfo,args=('', checkinkey)).run():
             print 'This class does not exist.Please check your input'
             return False
 
@@ -44,7 +43,7 @@ class baseattendance(object):
         return checkinkey
 
     def getseqnum(self):
-        seqinfo=Query.QueryObjectInfo('../InData/seq.csv',{'TeacherID':'2004633','ClassName':'软件工程1401'})
+        seqinfo=DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/seq.csv',{'TeacherID':'2004633','ClassName':'软件工程1401'})).run()
         if not seqinfo:
             return '1'
         return str(int(seqinfo[-1]['SeqID'])+1)
@@ -61,11 +60,9 @@ class baseattendance(object):
         return timeinfo
 
     def write_seq(self):
-        if not Query.QueryObjectKey('../InData/seq.csv'):
+        if not DataProcess(target=DataProcess.QueryObjectKey,args=('../InData/seq.csv')).run():
             print 'The system creates the seq.csv file automatically！'
-            return Update.update('../InData/seq.csv', 'w', [self.get_seqinfo()])
-        else:
-            return Update.update('../InData/seq.csv', 'a', [self.get_seqinfo()])
+        return DataProcess(target=DataProcess.update,args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
 
 
     def get_seqinfo(self):

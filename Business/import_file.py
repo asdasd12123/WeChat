@@ -1,7 +1,5 @@
 #coding=utf-8
-from DataProcess.Update import Update
-from DataProcess.Check import Check
-from DataProcess.Query import Query
+from DataProcess.DataProcess import DataProcess
 import re
 
 class Import_file(object):
@@ -20,7 +18,7 @@ class Import_file(object):
                            "ClassID":'[\x80-\xff]+\d{4}$'}
 
     def Stu_Operation(self,out_file,path):
-        data=Query.QueryObjectInfo(out_file)
+        data=DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
         if not data:
             return None
         for line in data:
@@ -28,7 +26,7 @@ class Import_file(object):
         return data
 
     def Course_operation(self,out_file,path=''):
-        course_data = Query.QueryObjectInfo(out_file)
+        course_data = DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
         new_data=[]
         for line in course_data:
             major = line['ClassNums']
@@ -56,7 +54,7 @@ class Import_file(object):
         return new_data
 
     def import_file(self,UserID,source_file,out_file,format=[],Primary_key=[],operation=None,Path=''):
-        if Query.QueryPermisson(UserID,source_file) !=6:
+        if DataProcess(target=DataProcess.QueryPermisson,args=(UserID,source_file)).run() !=6:
             print 'You have no right to operate on this file ！'
             return False
 
@@ -64,12 +62,12 @@ class Import_file(object):
         if operation:
             data=operation(out_file,Path)
         else:
-            data=Query.QueryObjectInfo(out_file)
-        error=Check.formatcheck(data,format)
-        if Check.getresult(error):
+            data=DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
+        error=DataProcess(target=DataProcess.formatcheck,args=(data,format)).run()
+        if DataProcess(target=DataProcess.getresult,args=(error,)).run():
             print error
             return False
-        return Update.update(source_file,'w',data,Primary_key)
+        return DataProcess(target=DataProcess.update,args=(source_file,'w',data,Primary_key)).run()
 
 
 if __name__=='__main__':

@@ -1,7 +1,5 @@
 #coding=utf-8
-from DataProcess.Update import Update
-from DataProcess.Query import Query
-from DataProcess.Check import Check
+from DataProcess.DataProcess import DataProcess
 import time
 '''
 
@@ -32,11 +30,11 @@ class Auxiliaryfunction(object):
             return None
 
         info['Type']='False'
-        return Update.update('../InData/set.csv','w',[info])
+        return DataProcess(target=DataProcess.update,args=('../InData/set.csv','w',[info])).run()
 
     def read(self,key):
 
-        rule=Query.QueryObjectInfo('../InData/set.csv',{'TeacherID':key,'Type':'True'})
+        rule=DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/set.csv',{'TeacherID':key,'Type':'True'})).run()
         if not rule:
             rule={'TeacherID':key,'autolate':'3','autoabsence':'3','randomlate':'3','randomabsence':'3','Type':'True'}
             print '您当前使用的是默认规则!'
@@ -44,7 +42,7 @@ class Auxiliaryfunction(object):
 
     def ruleset(self,key):
 
-        rules = Query.QueryObjectInfo('../InData/set.csv', {'TeacherID': key})
+        rules = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/set.csv', {'TeacherID': key})).run()
         if not rules:
             print '您当前没有创建自定义规则'
             return False
@@ -63,7 +61,7 @@ class Auxiliaryfunction(object):
             else:
                 rule['Type']='False'
 
-        return Update.update('../InData/set.csv','w',rules)
+        return DataProcess(targe=DataProcess.update,args=('../InData/set.csv','w',rules)).run()
 
 
 

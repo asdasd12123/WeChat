@@ -3,8 +3,7 @@ from startcheckin import autothread,randomthread
 import time
 from Auxiliaryfunction import Auxiliaryfunction
 from basicattendance import baseattendance
-from DataProcess.Update import Update
-from DataProcess.Query import Query
+from DataProcess.DataProcess import DataProcess
 import random
 
 class checkinNode(baseattendance):
@@ -16,7 +15,7 @@ class checkinNode(baseattendance):
             return False
 
         rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
-        studentlist = Query.QueryObjectInfo('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})
+        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})).run()
 
         while True:
 
@@ -89,7 +88,7 @@ class checkinNode(baseattendance):
 
     def randomstulist(self):
         stulist = []
-        studentlist = Query.QueryObjectInfo('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})
+        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})).run()
 
         while True:
             num=raw_input('Please enter a percentage of the spot checks!')
@@ -116,6 +115,27 @@ class checkinNode(baseattendance):
 
     def random_new_start(self):
         studentlist=self.randomstulist()
+        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
+        while True:
+
+            Time = self.getTime()
+            if not Time:
+                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
+                return False
+
+            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['randomlate'],rule['randomabsence'])
+            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
+                    len(studentlist),'Random')
+            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['randomlate'],Time['nowbetweenstart']/60,
+                                                                  Time['endclass']/60)
+            result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
+            if result=='yes':
+                break
+            elif result=='exit':
+                return False
+            else:
+                time.sleep(1)
+
         self.random.new_start(studentlist,self.filename,20)
 
 
@@ -135,7 +155,7 @@ class checkinNode(baseattendance):
 
 
     def creatManualAttendance(self,studentinfolist,filename):
-        return Update.update(filename,'w',studentinfolist)
+        return DataProcess(target=DataProcess.update,args=(filename,'w',studentinfolist)).run()
 
 
     def Realtimeresults(self):

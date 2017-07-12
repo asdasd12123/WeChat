@@ -1,5 +1,5 @@
 #coding=utf-8
-from DataProcess.Query import Query
+from DataProcess.DataProcess import DataProcess
 
 '''
 在此模块中学生进行考勤　请假 　
@@ -11,7 +11,7 @@ class studentcheckin(object):
         stukey = {}
         stukey['StuID'] = raw_input('Please input your student number！')
         stukey['ClassID'] = raw_input('Please input your class!')
-        stuinfo = Query.QueryObjectInfo('../InData/studentInfo.csv', stukey)
+        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', stukey)).run()
         if not stuinfo:
             print 'Identity failed!'
             return None
@@ -41,4 +41,4 @@ class studentcheckin(object):
 if __name__=='__main__':
 
     #studentcheckin().getstukey()
-    studentcheckin().checkinauto()
+    studentcheckin().checkin()

@@ -4,7 +4,7 @@ import threading
 import datetime
 import random
 import time
-from    DataProcess.Update  import Update
+from    DataProcess.DataProcess  import DataProcess
 
 
 '''为了简化考勤的操作 对考勤进行简化 不对数据的有效性进行分析 假设数据全是有效的 不对时间进行分析假设时间全是有效的 具体的验证放到业务校验模块
@@ -106,7 +106,7 @@ class autothread(Checkin):
 
     def run(self,Time):
         time.sleep(Time)
-        Update.update(self.filename,'a',self.info)
+        DataProcess(target=DataProcess.update,args=(self.filename,'a',self.info)).run()
         self.status=False
 
     def start(self,Time):
@@ -119,12 +119,12 @@ class randomthread(Checkin):
     def run(self,count,Time):
         time.sleep(Time)
         if self.count==count:
-            Update.update(self.filename, 'a', self.info)
+            DataProcess(target=DataProcess.update,args=(self.filename, 'a', self.info)).run()
             self.status = False
 
     def new_start(self,studentinfolist,filename,Time):
         if self.status:
-            Update.update(filename,'a',self.info)
+            DataProcess(target=DataProcess.update, args=(self.filename, 'a', self.info)).run()
         self.count=self.count+1
         self.info=self.Initialization(studentinfolist)
         self.start(Time)
