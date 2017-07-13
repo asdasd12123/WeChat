@@ -31,6 +31,7 @@ class Checkin(object):
         通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
         此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
+
         line['checkTime'] = datetime.datetime.now()
         line['ProofPath'] =studentfio['Prove']
         if studentfio.has_key('leave'):
@@ -39,6 +40,7 @@ class Checkin(object):
             line['checkinResult']='Submitted'
             line['checkTime'] = str(datetime.datetime.now())[:-7]
             return line
+
 
         line['checkinType']=self.type
         num=random.randint(0,1)
@@ -53,7 +55,7 @@ class Checkin(object):
                 line['checkinResult'] = 'Late'
             else:
                 print 'I\'m sorry, but you have been certified absent!'
-                line['checkinResult'] = 'absence'
+                line['checkinResult'] = 'Absence'
         else:
             print 'Invalid attendance certificate！'
             line['IsSucc'] = 'False'
