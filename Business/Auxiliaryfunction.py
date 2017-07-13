@@ -182,8 +182,49 @@ class Auxiliaryfunction(object):
             else:
                 return  num
 
-    def historical_statistics(self):
-        pass
+    def historical_statistics(self,key): #这里的键值包括TeacherID和老师要统计的班级和次序号
+
+        def operation(line):
+            if key['TeacherID'] in line and key['ClassName'] in line and key['SeqNum'] in line:
+                return True
+            return False
+
+        filename=DataProcess(target=DataProcess.QueryNameByInfo,args=(operation,)).run()[0]
+        if not filename:
+            print '无法计算该次考勤的结果'
+            return False
+        stuinfo=DataProcess(target=DataProcess.QueryObjectInfo,args=(filename,)).run()
+        allstuinfo=self.statistics_calculation(stuinfo)
+        for (key,item) in allstuinfo['checkin'].items():
+            if item['Type']=='Submitted':
+                self.Take_leave_absence(filename,{'StuID':key})
+        return True
+
+
+
+    def Take_leave_absence(self,filename,stuID): #请假认定
+        stuinfo=DataProcess(target=DataProcess.QueryObjectInfo,args=(filename,stuID)).run()[0]
+        print '学号：'+ stuinfo['StuID']+'   该学生的请假证明路径为 : '+stuinfo['ProofPath']
+        while True:
+            num=raw_input('是否批准该学生的假条 ? yes or no \n')
+            if num=='yes':
+                stuinfo['IsSucc']='True'
+                stuinfo['checkinResult']='approve'
+                DataProcess(target=DataProcess.update,args=(filename,'w',[stuinfo],['StuID','checkstartTime'])).run()
+                break
+            elif num=='no':
+                stuinfo['IsSucc'] = 'True'
+                stuinfo['checkinResult'] = 'Absence'
+                DataProcess(target=DataProcess.update,
+                            args=(filename, 'w', [stuinfo], ['StuID', 'checkstartTime'])).run()
+                break
+            else:
+                print '请输入标准的选项!'
+                time.sleep(1)
+                continue
+
+
+
 
 
 
@@ -191,4 +232,6 @@ if __name__=='__main__':
     #Auxiliaryfunction().addset('asdasd')
     #Auxiliaryfunction().ruleset('asdasd')
     #print Auxiliaryfunction().read('asdasd')
-    Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':'软件工程1401'})
+    Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})
+    Auxiliaryfunction().historical_statistics({'TeacherID':'2004633','ClassName':'软件工程1401','SeqNum':'1'})
+    Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})
