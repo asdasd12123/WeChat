@@ -4,7 +4,7 @@ import threading
 import datetime
 import random
 import time
-from    DataProcess.DataProcess  import DataProcess
+from DataProcess.DataProcess  import DataProcess
 
 
 '''为了简化考勤的操作 对考勤进行简化 不对数据的有效性进行分析 假设数据全是有效的 不对时间进行分析假设时间全是有效的 具体的验证放到业务校验模块
@@ -12,7 +12,6 @@ from    DataProcess.DataProcess  import DataProcess
 '''
 
 class Checkin(object):
-
     '''
     考勤类是自动考勤和随机考勤的父类　
     '''
@@ -29,12 +28,18 @@ class Checkin(object):
 
     def Calculation(self,line,studentfio):
         '''
-
         通过对学生发送的信息进行计算　可以接收考勤信息和请假休息
         此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
         line['checkTime'] = datetime.datetime.now()
         line['ProofPath'] =studentfio['Prove']
+        if studentfio.has_key('leave'):
+            line['checkinType']='leave'
+            line['IsSucc']='unknown'
+            line['checkinResult']='Submitted'
+            line['checkTime'] = str(datetime.datetime.now())[:-7]
+            return line
+
         line['checkinType']=self.type
         num=random.randint(0,1)
         if num:
@@ -80,7 +85,7 @@ class Checkin(object):
             return False
         for line in self.info:
             if line['StuID']==studentinfo['StuID']:
-                if line['IsSucc']!='null':
+                if line['IsSucc']=='True':
                     print 'studeng '+line['StuID']+' have checkin!'
                     return False
                 self.info[self.info.index(line)]= self.Calculation(line,studentinfo)
@@ -113,6 +118,7 @@ class autothread(Checkin):
         t=threading.Thread(target=autothread.run,args=(self,Time,))
         t.start()
 
+
 class randomthread(Checkin):
 
     '''该线程有个两个子线程 和一个状态变量 平时只运行第一个状态变量 当参数修改时 运行第二个状态变量'''
@@ -121,6 +127,7 @@ class randomthread(Checkin):
         if self.count==count:
             DataProcess(target=DataProcess.update,args=(self.filename, 'a', self.info)).run()
             self.status = False
+
 
     def new_start(self,studentinfolist,filename,Time):
         if self.status:

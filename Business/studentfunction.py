@@ -26,6 +26,7 @@ class studentcheckin(object):
         stuinfo=self.getstukey()
         if not stuinfo:
             return None
+        stuinfo['Type']='leave'
         stuinfo['Prove']=raw_input('Please enter your proof of leave!')
         return stuinfo
 

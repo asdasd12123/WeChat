@@ -60,7 +60,7 @@ class baseattendance(object):
         return timeinfo
 
     def write_seq(self):
-        if not DataProcess(target=DataProcess.QueryObjectKey,args=('../InData/seq.csv')).run():
+        if not DataProcess(target=DataProcess.QueryObjectKey,args=('../InData/seq.csv',)).run():
             print 'The system creates the seq.csv file automatically！'
         return DataProcess(target=DataProcess.update,args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
 

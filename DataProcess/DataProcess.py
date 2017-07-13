@@ -24,7 +24,7 @@ class DataProcess(object):
         elif self.target==3:
             return Query.QueryPermisson(*self.args)
         elif self.target==4:
-            return Query.QueryNameByInfo()
+            return Query.QueryNameByInfo(*self.args)
         elif self.target==5:
             return Check.formatcheck(*self.args)
         elif self.target==6:
