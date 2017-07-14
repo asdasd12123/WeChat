@@ -8,7 +8,7 @@ import signal
 
 def my(pid):
     time.sleep(60)
-    os.kill(pid,signal.SIGKILL)
+    os.kill(pid,signal.SIGINT)
 
 if __name__=='__main__':
     s=startcheckin()
