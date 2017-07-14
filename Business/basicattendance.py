@@ -68,7 +68,7 @@ class baseattendance(object):
     def get_seqinfo(self):
         seqinfo = {'TeacherID': self.key['TeacherID'], 'ClassName': self.key['ClassName']}
         seqnum = self.getseqnum()
-        self.filename = '../InData/'+self.key['TeacherID'] + '_' + self.key['ClassName'] + '_' + seqnum + '.csv'
+        self.filename = '../InData/'+self.key['TeacherID'] + '_' + self.key['ClassName'] + '_' + seqnum + 'Detail.csv'
         seqinfo['StartTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         seqinfo['SeqID'] = self.getseqnum()
         return seqinfo

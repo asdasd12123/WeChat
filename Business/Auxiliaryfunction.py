@@ -1,6 +1,7 @@
 #coding=utf-8
 from DataProcess.DataProcess import DataProcess
 import time
+import re
 '''
 
 此模块对　出勤情况历史统计　出勤成绩输出　出勤情况随堂（实时）统计　学生信息维护　请假认定 考勤规则的指定
@@ -26,10 +27,7 @@ class Auxiliaryfunction(object):
             else:
                 absence[stu['StuID']]=info
 
-            if stu['checkinResult'] =='null':
-                info['Type']='Absence'
-            else:
-                info['Type']='null'
+            info['Type']='null'
             info['StuName']=DataProcess(target=DataProcess.QueryObjectInfo,
             args=('../InData/studentInfo.csv',{'StuID':stu['StuID']})).run()[0]['StuName']
 
@@ -48,6 +46,8 @@ class Auxiliaryfunction(object):
                         info['Type']=stu['checkinResult']
                     else:
                         continue
+                elif info['Type']=='Submitted':
+                    info['Type'] = stu['checkinResult']
             else:
                 continue
         allinfo = {}
@@ -97,10 +97,11 @@ class Auxiliaryfunction(object):
                 print '学号 : %-13s 姓名 : %-8s 考勤状况: %-12s ' % (key, item['StuName'], item['Type'])
         return True
 
-    def view__time(self,key): #输入教师教工号和班级号的字典
+    def view__time(self,key): #输入教师教工号和班级号的字典　查看最近历史的一次考勤
 
         def operation(filename):
-            if key['TeacherID'] in filename and key['ClassName'] in filename:
+            filename=re.split('_',filename)
+            if '../InData/'+key['TeacherID'] in filename and key['ClassName'] in filename and 'Detail.csv' in filename:
                 return True
             return False
 
@@ -233,5 +234,5 @@ if __name__=='__main__':
     #Auxiliaryfunction().ruleset('asdasd')
     #print Auxiliaryfunction().read('asdasd')
     Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})
-    Auxiliaryfunction().historical_statistics({'TeacherID':'2004633','ClassName':'软件工程1401','SeqNum':'1'})
-    Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})
+    #Auxiliaryfunction().historical_statistics({'TeacherID':'2004633','ClassName':'软件工程1401','SeqNum':'1'})
+    #Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})

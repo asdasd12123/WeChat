@@ -15,9 +15,11 @@ class Checkin(object):
     '''
     考勤类是自动考勤和随机考勤的父类　
     '''
+
     __metaclass__ = ABCMeta
 
     def __init__(self,studentinfolist,filename,rule):
+        self.counter=None
         self.info =self.Initialization(studentinfolist)
         self.count=0
         self.status=False
@@ -32,15 +34,15 @@ class Checkin(object):
         此函数具有局限性　只能对单次具体的考勤窗口进行计算　但是无法对所有的整体结果进行计算　所以全局性的计算放到其它窗口
         '''
 
+        self.counter[line['StuID']]=self.counter[line['StuID']]-1
         line['checkTime'] = datetime.datetime.now()
         line['ProofPath'] =studentfio['Prove']
         if studentfio.has_key('leave'):
             line['checkinType']='leave'
-            line['IsSucc']='unknown'
+            line['IsSucc']='True'
             line['checkinResult']='Submitted'
             line['checkTime'] = str(datetime.datetime.now())[:-7]
             return line
-
 
         line['checkinType']=self.type
         num=random.randint(0,1)
@@ -57,9 +59,7 @@ class Checkin(object):
                 print 'I\'m sorry, but you have been certified absent!'
                 line['checkinResult'] = 'Absence'
         else:
-            print 'Invalid attendance certificate！'
-            line['IsSucc'] = 'False'
-            line['checkinResult']='Absence'
+            print 'Invalid attendance certificate！ 您还有 %d 次机会 ' %(self.counter[line['StuID']])
         line['checkTime'] = str(datetime.datetime.now())[:-7]
         return line
 
@@ -67,17 +67,18 @@ class Checkin(object):
         '''
         格式化初始数据　
         '''
-
         info=[]
+        self.counter={}
         for line in studentinfolist:
             data = {}
+            self.counter[line['StuID']]=5
             data['StuID'] = line['StuID']
             data['checkstartTime']=str(datetime.datetime.now())[:-7]
             data['checkTime'] = 'null'
             data['ProofPath'] = 'null'
             data['checkinType'] = 'null'
-            data['IsSucc'] = 'null'
-            data['checkinResult'] ='null'
+            data['IsSucc'] = 'False'
+            data['checkinResult'] ='Absence'
             info.append(data)
         return info
 
@@ -85,10 +86,14 @@ class Checkin(object):
         if not self.status:
             print 'The time window is closed and unable to receive attendance information！'
             return False
+
         for line in self.info:
             if line['StuID']==studentinfo['StuID']:
+                if not self.counter[studentinfo['StuID']]:
+                    print line['StuID']+' :您当前已经用完了考勤次数用完无法考勤'
+                    return False
                 if line['IsSucc']=='True':
-                    print 'studeng '+line['StuID']+' have checkin!'
+                    print '该账户已经完成考勤!'
                     return False
                 self.info[self.info.index(line)]= self.Calculation(line,studentinfo)
                 return True
