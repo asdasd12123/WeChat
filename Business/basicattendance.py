@@ -10,7 +10,7 @@ class baseattendance(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):  # 主键就是课程号加上班级号　若不存在则无法签到
+    def __init__(self):  #主键就是课程号加上班级号　若不存在则无法签到
         self.auto = None
         self.random = None
         self.key =self.getkey()
@@ -63,7 +63,6 @@ class baseattendance(object):
         if not DataProcess(target=DataProcess.QueryObjectKey,args=('../InData/seq.csv',)).run():
             print 'The system creates the seq.csv file automatically！'
         return DataProcess(target=DataProcess.update,args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
-
 
     def get_seqinfo(self):
         seqinfo = {'TeacherID': self.key['TeacherID'], 'ClassName': self.key['ClassName']}
