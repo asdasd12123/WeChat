@@ -11,6 +11,7 @@ class DataProcess(object):
     QueryNameByInfo =4
     formatcheck = 5
     update = 6
+    getresult=7
 
     def __init__(self,target=None,args=()):
         self.target=target
@@ -29,6 +30,8 @@ class DataProcess(object):
             return Check.formatcheck(*self.args)
         elif self.target==6:
             return Update.update(*self.args)
+        elif self.target==7:
+            return Check.getresult(*self.args)
         else:
             print '类型错误无该函数调用!'
             return None

@@ -1,193 +1,70 @@
 #coding=utf-8
-from startcheckin import autothread,randomthread
-import time
-from Auxiliaryfunction import Auxiliaryfunction
-from basicattendance import baseattendance
+from bashcheckin import bashcheckin
 from DataProcess.DataProcess import DataProcess
-import random
 
-class checkinNode(baseattendance):
+class checkinNode(bashcheckin):
 
-
-    def creatauto(self):
-        if self.auto :
-            print 'There are currently automatic attendance Windows that cannot be created again !'
+    def startauto(self):
+        if self.status:
+            print ' 当前已经存在自动考勤窗口无法再次开启!'
             return False
 
-        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
-        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})).run()
-
-        while True:
-
-            Time = self.getTime()
-            if not Time:
-                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
-                return False
-
-            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['autolate'],rule['autoabsence'])
-            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
-                    len(studentlist),'Auto')
-            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['autolate'],Time['nowbetweenstart']/60,
-                                                                  Time['endclass']/60)
-            result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
-            if result=='yes':
-                break
-            elif result=='exit':
-                return False
-            else:
-                time.sleep(1)
-
+        stu_list = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
         self.write_seq()
-        self.auto=autothread(studentlist,self.filename,rule)
-        self.auto.type='auto'
-        self.auto.rule={'late':rule['autolate'],'absence':rule['autoabsence']}
-        self.auto.start(30)
-        self.auto.status=True
-        return True
+        stu_list=self.Initialization(stu_list,'auto')
+        self.status=True
+        return DataProcess(target=DataProcess.update,args=(self.filename,'w',stu_list)).run()
 
 
-    def creatrandom(self):
-        if not self.auto or not  self.auto.status:
-            print 'Currently the attendance node does not open automatic attendance is unable to open random check on work attendance !'
+    def startrandom(self):
+        if not self.status:
+            print ' 当前没有开启自动考勤无法进行抽点考勤!'
             return False
-        if self.random:
-            print 'There are currently automatic attendance Windows that cannot be created again !'
-            return False
+        self.random_info =self.randomstulist()
+        stu_list=self.Initialization(self.random_info,'random')
+        return DataProcess(target=DataProcess.update, args=(self.filename, 'a',stu_list)).run()
 
-        studentlist =self.randomstulist()
-        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
+    def receive(self,stuinfo):
+        if stuinfo['Type']=='auto':
+            return self.auto_cal(stuinfo)
+        else:
+            return self.random_cal(stuinfo)
 
-        while True:
-
-            Time = self.getTime()
-            if not Time:
-                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
-                return False
-
-            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['randomlate'],rule['randomabsence'])
-            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
-                    len(studentlist),'Random')
-            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['randomlate'],Time['nowbetweenstart']/60,
-                                                                  Time['endclass']/60)
-            result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
-            if result=='yes':
-                break
-            elif result=='exit':
-                return False
-            else:
-                time.sleep(1)
-
-        self.random=randomthread(studentlist,self.filename,rule)
-        self.random.type='random'
-        self.random.rule={'late':rule['randomlate'],'absence':rule['randomabsence']}
-        self.random.start(20)
-        self.random.status=True
-        return True
+    def manCheckin(self):  # 手动考勤
+        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv',{'ClassID': self.key['ClassID']})).run()
+        self.write_seq()
+        print '请按照以下选项输入状态 非法输入默认为缺勤!'
+        print ' 1　正常　2　迟到　３　早退　４　缺勤 5　请假已批准'
+        stulist=self.Initialization(stuinfo,'man')
+        return DataProcess(target=DataProcess.update, args=(self.filename, 'w', stulist)).run()
 
 
-
-    def randomstulist(self):
-        stulist = []
-        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassName']})).run()
-
-        while True:
-            num=raw_input('Please enter a percentage of the spot checks!')
-            try:
-                num=float(num)
-            except TypeError and ValueError:
-                print 'You have entered an invalid format. Please enter a floating point number!'
-                continue
-
-            if num<=0 or num>100 or int(len(studentlist) * num / 100)==0:
-                print 'Number exceeds or below standard. Please re-enter!'
-                time.sleep(1)
-            else:
-                num = int(len(studentlist) * num / 100)
-                print 'You have a total of %d people selected this time!' %(num)
-                break
-
-        while len(stulist)!=num:
-            index=random.randint(0,len(studentlist)-1)
-            if studentlist[index] not in stulist:
-                stulist.append(studentlist[index])
-        return stulist
-
-
-    def random_new_start(self):
-        studentlist=self.randomstulist()
-        rule = Auxiliaryfunction().read({'TeacherID': self.key['TeacherID']})
-        while True:
-
-            Time = self.getTime()
-            if not Time:
-                print 'At this stage can not open the check, please refer to the start of the standard of attendance!'
-                return False
-
-            print '您采用的考勤规则为 : 距离开始考勤%s分钟之后为迟到，%s分钟之后为缺勤！' %(rule['randomlate'],rule['randomabsence'])
-            print '当前课程名称 : %s,当前考勤班级为:%s,当前被考勤人数:%d,当前考勤类型:%s!' %(self.key['CourseName'],self.key['ClassName'],
-                    len(studentlist),'Random')
-            print '当前考勤的有效时间为 %s 分钟,距离上课开始有%d分钟,距离下课还有%d 分钟!' %(rule['randomlate'],Time['nowbetweenstart']/60,
-                                                                  Time['endclass']/60)
-            result=raw_input('确定开始考勤输入 \'yes\'  退出请输入 \'exit\' ')
-            if result=='yes':
-                break
-            elif result=='exit':
-                return False
-            else:
-                time.sleep(1)
-
-        self.random.new_start(studentlist,self.filename,20)
-
-
-    def autoreceive(self,student):
-        if not self.auto or not self.auto.status:
-            print 'The current automatic attendance window is unable to receive information!'
-            return False
-        return self.auto.receive(student)
-
-
-    def randomreceive(self,student):
-        if not self.random or not self.random.status:
-            print 'The current random window cannot receive information'
-            return False
-        return self.random.reveive(student)
-
-
-
-    def creatManualAttendance(self,studentinfolist,filename):
-        return DataProcess(target=DataProcess.update,args=(filename,'w',studentinfolist)).run()
-
-
-    def Realtimeresults(self):
-        '''查看实时考勤结果'''
-        pass
-
-
-class startcheckin(object):
-    def __init__(self):
-        self.list=[]
-
-    def remove(self):
-        while True:
-            for line in self.list:
-                if line.auto and not line.auto.status or not line.auto:
-                    if line.random and not line.random.status or not line.random:
-                        self.list.remove(line)
-                        time.sleep(1)
-
-    def append(self,argu):
-        for item in self.list:
-            if not (argu.key['TeacherID']!=item.key['TeacherID'] and argu.key['ClassID'] !=item.key['TeacherID']):
-                print 'Attendance object is illegal or already exists！'
-                return False
-        self.list.append(argu)
-        return True
 
 
 if __name__=='__main__':
-    checkinNode().creatauto()
-
-
+    c=checkinNode({'TeacherID':'2004633','ClassID':'软件工程1401'})
+    #c.startauto()
+    key = {'Type':'auto','StuID': '201416920106', 'ClassID': '软件工程1401', 'ProofPath': 'adadadasdasdasdasd'}
+    key3 = {'StuID': '201416920105', 'ClassID': '软件工程1401', 'ProofPath': 'asdxcxz'}
+    key2 = {'Type':'random','StuID': '201416920106', 'ClassID': '软件工程1401', 'ProofPath': 'adadadasdasdasdasd'}
+    #c.startrandom()
+    #print c.random_info
+    '''c.receive(key)
+    c.receive(key2)
+    c.receive(key2)
+    c.receive(key2)
+    c.receive(key)
+    c.startrandom()
+    c.receive(key2)
+    c.receive(key)
+    c.receive(key2)
+    c.receive(key)
+    c.startrandom()
+    c.receive(key2)
+    c.receive(key)
+    c.receive(key2)
+    #c.receive(key2)'''
+    c.manCheckin()
 
 
 

@@ -1,14 +1,6 @@
-StuID,IsSucc,checkTime,ProofPath,checkinType,checkinResult,checkstartTime
-201416920105,False,2017-07-12 10:23:21,asdxcxz,random,Absence,2017-07-12 10:23:21
-201416920101,null,null,null,null,normal,2017-07-12 10:23:21
-201416920102,null,null,null,null,null,2017-07-12 10:23:21
-201416920104,null,null,null,null,null,2017-07-12 10:23:21
-201416920101,null,null,null,null,normal,2017-07-12 10:23:17
-201416920102,null,null,null,null,null,2017-07-12 10:23:17
-201416920104,null,null,null,null,null,2017-07-12 10:23:17
-201416920105,True,2017-07-12 10:23:17,asdxcxz,auto,normal,2017-07-12 10:23:17
-201416920106,True,2017-07-12 10:23:17,adadadasdasdasdasd,auto,Absence,2017-07-12 10:23:17
-201416920105,True,2017-07-12 10:23:30,asdxcxz,random,normal,2017-07-12 10:23:30
-201416920101,null,null,null,null,Absence,2017-07-12 10:23:30
-201416920104,null,null,null,null,approve,2017-07-12 10:23:30
-201416920106,True,null,asdadad,leave,Submitted,2017-07-14 11:27:10
+StuID,IsSucc,checkTime,ProofPath,checkinType,checkinResult
+201416920101,False,null,null,man,Absence
+201416920102,False,null,null,man,approve
+201416920104,False,null,null,man,normal
+201416920105,False,null,null,man,Late
+201416920106,False,null,null,man,leaveEarlier

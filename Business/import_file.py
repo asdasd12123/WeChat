@@ -53,12 +53,7 @@ class Import_file(object):
                     new_data.append(dict_line)
         return new_data
 
-    def import_file(self,UserID,source_file,out_file,format=[],Primary_key=[],operation=None,Path=''):
-        if DataProcess(target=DataProcess.QueryPermisson,args=(UserID,source_file)).run() !=6:
-            print 'You have no right to operate on this file ！'
-            return False
-
-        data=[]
+    def import_file(self,source_file,out_file,format=[],Primary_key=[],operation=None,Path=''):
         if operation:
             data=operation(out_file,Path)
         else:
@@ -67,7 +62,10 @@ class Import_file(object):
         if DataProcess(target=DataProcess.getresult,args=(error,)).run():
             print error
             return False
-        return DataProcess(target=DataProcess.update,args=(source_file,'w',data,Primary_key)).run()
+        for key in Primary_key:
+            DataProcess(target=DataProcess.update,args=(source_file,'w',data,key)).run()
+            data=DataProcess(target=DataProcess.QueryObjectInfo,args=(source_file,)).run()
+        return True
 
 
 if __name__=='__main__':
@@ -80,8 +78,8 @@ if __name__=='__main__':
     else:
         print 'failed' '''
 
-    if Import_file().import_file({'root':'0'},'b.csv','../Indata/studentInfo.csv',Import_file.StudentInfo, \
-                        ['CourseID','WeChatID'],Import_file().Stu_Operation,'D:/'):
+    if Import_file().import_file('../InData/studentInfo.csv','../InData/studentInfo1.csv',Import_file.StudentInfo
+            ,[['StuID'],['WeChatID']],Import_file().Stu_Operation,'D:/'):
         print 'success'
     else:
         print 'failed'
