@@ -6,10 +6,9 @@ import time
 
 class view(Auxiliaryfunction):
 
-    def __init__(self,key):
+    def __init__(self):
         self.sum_filename=None
         self.detail_filename=None
-        self.key=key
 
     def historical_statistics(self):  # 这里的键值包括TeacherID和老师要统计的班级和次序号
         stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(self.detail_filename,)).run()
@@ -41,33 +40,37 @@ class view(Auxiliaryfunction):
                 time.sleep(1)
                 continue
 
-    def view_time(self):  # 输入教师教工号和班级号的字典　查看最近历史的一次考勤
+    def view_time(self,key):  # 输入教师教工号和班级号的字典　查看最近历史的一次考勤
 
-        def operation(filename):
-            filename = re.split('_', filename)
-            if '../InData/' + self.key['TeacherID'] in filename and \
-                            self.key['ClassID'] in filename and 'Detail.csv' in filename:
-                return True
+        seqinfo=DataProcess(target=DataProcess.QueryObjectInfo, args=('../InData/seq.csv',)).run()
+
+        line={}
+        for seq in seqinfo:
+            if seq['TeacherID']==key['TeacherID']:
+                line['TeacherID']=seq['TeacherID']
+                line['ClassID']=seq['ClassID']
+                line['seqnum']=seq['SeqID']
+
+        if not line:
+            print '您还没有完整的进行过一次考勤!'
             return False
 
-        filename = DataProcess(target=DataProcess.QueryNameByInfo, args=(operation,)).run()[-1]
-
-        if not filename:
-            print '您最近还没有进行过一次完整的考勤'
-            return False
-
+        filename='../InData/'+line['TeacherID']+'_'+line['ClassID']+'_'+line['seqnum']+'_Detail.csv'
         stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(filename,)).run()
         return self.dis_play(stuinfo)
 
-    def creat_sum(self):
 
-        if not self.init():
+    
+
+    def creat_sum(self,key):
+
+        if not self.init(key):
             print '初始化失败请检查您的键值是否正确!'
             return False
 
         def operation(line):
             line=re.split('_',line)
-            if '../InData/'+self.key['TeacherID'] in line and self.key['ClassID'] in line and self.key['SeqNum'] in line:
+            if '../InData/'+key['TeacherID'] in line and key['ClassID'] in line and key['SeqNum'] in line:
                 return True
             return False
 
@@ -79,26 +82,30 @@ class view(Auxiliaryfunction):
         self.detail_filename=filename[0]
         self.historical_statistics()
         stulist=DataProcess(target=DataProcess.QueryObjectInfo, args=(self.detail_filename,)).run()
+
         stulist=self.statistics_calculation(stulist)
+
         olddata=DataProcess(target=DataProcess.QueryObjectInfo, args=(self.sum_filename,)).run()
+
         DataProcess(target=DataProcess.update, args=(self.sum_filename,'dl',olddata)).run()
 
         for line in olddata:
-            line['checkin'+self.key['SeqNum']]='normal'
-            for (key,item) in stulist['checkin'].items():
-                if line['StuID']==key:
-                    line['checkin'+self.key['SeqNum']]=item['Type']
+            line['checkin'+key['SeqNum']]='normal'
+            for (k,item) in stulist['checkin'].items():
+                if line['StuID']==k:
+                    line['checkin'+key['SeqNum']]=item['Type']
+        print '创建第%s次的考勤汇总表成功!' %(key['SeqNum'])
         return DataProcess(target=DataProcess.update,args=(self.sum_filename,'w',olddata)).run()
 
 
-    def init(self):
-        self.sum_filename='../InData/'+self.key['TeacherID']+'_'+self.key['ClassID']+'_'+'Sum.csv'
+    def init(self,key):
+        self.sum_filename='../InData/'+key['TeacherID']+'_'+key['ClassID']+'_'+'Sum.csv'
         if not DataProcess(target=DataProcess.QueryObjectKey,args=(self.sum_filename,)).run():
             sum=[]
             stulist=DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv',{'ClassID':self.key['ClassID']})).run()
-            for key in stulist:
+            for k in stulist:
                 sumdict = {}
-                sumdict['StuID']=key['StuID']
+                sumdict['StuID']=k['StuID']
                 sum.append(sumdict)
             return DataProcess(target=DataProcess.update,args=(self.sum_filename,'w',sum)).run()
 
@@ -107,6 +114,7 @@ class view(Auxiliaryfunction):
 
 
 if __name__=='__main__':
-    c=view({'TeacherID':'2004633','ClassID':"软件工程1401",'SeqNum':'1'})
+    c=view({'TeacherID':'2004633','ClassID':"软件工程1401",'SeqNum':'3'})
+
     c.creat_sum()
     c.view_time()

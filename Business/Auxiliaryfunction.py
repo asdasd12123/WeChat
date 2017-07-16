@@ -1,7 +1,7 @@
 #coding=utf-8
 from DataProcess.DataProcess import DataProcess
 '''
-此模块对　出勤情况历史统计　出勤成绩输出　出勤情况随堂（实时）统计　学生信息维护　请假认定 考勤规则的指定
+此模块对　出勤情况历史统计　出勤成绩输出　出勤情况随堂（实时）统计　　请假认定 考勤规则的指定
 '''
 
 class Auxiliaryfunction(object):
@@ -99,7 +99,7 @@ class Auxiliaryfunction(object):
         if int(checkinfo['grade']) != 100:
             print '未出勤学生详细信息如下:'
             for (key, item) in checkinfo['checkin'].items():
-                print '学号 : %-13s 姓名 : %-8s 考勤状况: %-12s ' % (key, item['StuName'], item['Type'])
+                print '学号 :%-15s 姓名 :%-15s 考勤状况 :%-12s ' % (key, item['StuName'], item['Type'])
         return True
 
 

@@ -1,7 +1,8 @@
 #coding=utf-8
 import datetime
+import ConfigParser
+import re
 from DataProcess.DataProcess import DataProcess
-from Auxiliaryfunction import Auxiliaryfunction
 import random
 import time
 
@@ -10,11 +11,26 @@ class bashcheckin(object):
     def __init__(self,key):
         self.counter = {'auto': {}, 'random': {}}
         self.status = False
-        self.random_info = {}
-        self.start_time = datetime.datetime.now()
+        self.random_info = []
+        self.start_time =None
+        self.end_time=None
         self.key=key
         self.filename=None
         #self.rule=Auxiliaryfunction().read(key)
+        cf = ConfigParser.ConfigParser()
+        cf.read('../InData/settings.ini')
+        info = map((lambda x: re.split('-|:', x[1])), cf.items('sectime'))
+        self.Timeinfo = map((lambda x: [int(x[0]) * 3600 + int(x[1]) * 60, int(x[2]) * 3600 + int(x[3]) * 60]), info)
+
+    def getTime(self):
+        localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
+        for Time in self.Timeinfo:
+            if localtime >= Time[0] - 600 and localtime <= Time[1] - 59:
+                self.end_time = Time[1]
+                self.start_time = localtime
+                return True
+        return False
+
 
     def Initialization(self, stu_info_list, type):
         '''

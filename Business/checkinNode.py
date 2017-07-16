@@ -8,12 +8,16 @@ class checkinNode(bashcheckin):
         if self.status:
             print ' 当前已经存在自动考勤窗口无法再次开启!'
             return False
-
-        stu_list = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
+        if not self.getTime():
+            print '当前不是有效时间无法开启考勤!'
+            return False
+        stu_list = DataProcess(target=DataProcess.QueryObjectInfo,
+        args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
         self.write_seq()
         stu_list=self.Initialization(stu_list,'auto')
         self.status=True
-        return DataProcess(target=DataProcess.update,args=(self.filename,'w',stu_list)).run()
+        return DataProcess(target=DataProcess.update,
+        args=(self.filename,'w',stu_list)).run()
 
 
     def startrandom(self):
@@ -22,7 +26,9 @@ class checkinNode(bashcheckin):
             return False
         self.random_info =self.randomstulist()
         stu_list=self.Initialization(self.random_info,'random')
-        return DataProcess(target=DataProcess.update, args=(self.filename, 'a',stu_list)).run()
+        return DataProcess(target=DataProcess.update,
+        args=(self.filename, 'a',stu_list)).run()
+
 
     def receive(self,stuinfo):
         if stuinfo['Type']=='auto':
@@ -30,13 +36,17 @@ class checkinNode(bashcheckin):
         else:
             return self.random_cal(stuinfo)
 
+
     def manCheckin(self):  # 手动考勤
-        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv',{'ClassID': self.key['ClassID']})).run()
+        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo,
+        args=('../InData/studentInfo.csv',{'ClassID': self.key['ClassID']})).run()
+
         self.write_seq()
         print '请按照以下选项输入状态 非法输入默认为缺勤!'
         print ' 1　正常　2　迟到　３　早退　４　缺勤 5　请假已批准'
         stulist=self.Initialization(stuinfo,'man')
-        return DataProcess(target=DataProcess.update, args=(self.filename, 'w', stulist)).run()
+        return DataProcess(target=DataProcess.update,
+        args=(self.filename, 'w', stulist)).run()
 
 
 
@@ -64,7 +74,7 @@ if __name__=='__main__':
     c.receive(key)
     c.receive(key2)
     #c.receive(key2)'''
-    c.manCheckin()
+    #c.manCheckin()
 
 
 
