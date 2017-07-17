@@ -4,7 +4,6 @@ import threading
 
 class basebusiness(object):
 
-
     def __init__(self):
         self.list=[]
         self.t=None

@@ -63,7 +63,8 @@ class bashcheckin(object):
 
 
     def getseqnum(self):
-        seqinfo=DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/seq.csv',{'TeacherID':'2004633','ClassID':'软件工程1401'})).run()
+        seqinfo=DataProcess(target=DataProcess.QueryObjectInfo,
+        args=('../InData/seq.csv',{'TeacherID':'2004633','ClassID':'软件工程1401'})).run()
         if not seqinfo:
             return '1'
         return str(int(seqinfo[-1]['SeqID'])+1)
@@ -79,11 +80,13 @@ class bashcheckin(object):
     def write_seq(self):
         if not DataProcess(target=DataProcess.QueryObjectKey,args=('../InData/seq.csv',)).run():
             print 'The system creates the seq.csv file automatically！'
-        return DataProcess(target=DataProcess.update,args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
+        return DataProcess(target=DataProcess.update,
+        args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
 
     def randomstulist(self):
         stulist = []
-        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
+        studentlist = DataProcess(target=DataProcess.QueryObjectInfo,
+        args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
         while True:
             #num=raw_input('Please enter a percentage of the spot checks!')
             num=100
@@ -115,7 +118,8 @@ class bashcheckin(object):
 
         self.counter['auto'][stu_info['StuID']] = self.counter['auto'][stu_info['StuID']] - 1
         data = DataProcess(target=DataProcess.QueryObjectInfo,
-                           args=(self.filename, {'checkinType': 'auto', 'StuID': stu_info['StuID']})).run()[0]
+        args=(self.filename, {'checkinType': 'auto', 'StuID': stu_info['StuID']})).run()[0]
+
         if data['IsSucc'] == 'True':
             print '您已经完成自动考勤无法再次考勤!'
             return False
@@ -135,14 +139,17 @@ class bashcheckin(object):
         else:
             print '身份验证失败！ 您还有 %d 次机会 ' % (self.counter['auto'][stu_info['StuID']])
         data['checkTime'] = str(datetime.datetime.now())[:-7]
-        return DataProcess(target=DataProcess.update, args=(self.filename, 'w', [data],['StuID','checkinType'])).run()
+        return DataProcess(target=DataProcess.update,
+        args=(self.filename, 'w', [data],['StuID','checkinType'])).run()
 
     def random_cal(self, stu_info):
 
         if self.counter['random'][stu_info['StuID']] == 0:
             print '您当前进行随机考勤次数已经用完无法考勤!'
             return False
-        data = DataProcess(target=DataProcess.QueryObjectInfo,args=(self.filename, {'checkinType': 'random', 'StuID': stu_info['StuID']})).run()
+        data = DataProcess(target=DataProcess.QueryObjectInfo,
+        args=(self.filename, {'checkinType': 'random', 'StuID': stu_info['StuID']})).run()
+
         self.counter['random'][stu_info['StuID']] = self.counter['auto'][stu_info['StuID']] - 1
 
         if data[-1]['IsSucc'] == 'True':

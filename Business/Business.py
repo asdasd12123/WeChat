@@ -6,8 +6,7 @@ import time
 from studentfunction import student_fun
 from maintain import maintain
 from view import view
-from Auxiliaryfunction import Auxiliaryfunction
-
+from import_file import Import_file
 
 class business(basebusiness):
 
@@ -20,6 +19,7 @@ class business(basebusiness):
 
         self.view=view()
 
+        self.import_file=Import_file()
 
     def stuinfotest(self,key):
 
@@ -53,12 +53,9 @@ class business(basebusiness):
         return False
 
     def startrandom(self,key):
-        teacherinfo= self.teachertest(key)
-        if not teacherinfo:
-            return False
 
         for list in self.list:
-            if list.key['TeacherID'] == teacherinfo['TeacherID']:
+            if list.key['TeacherID'] == key['TeacherID']:
                 return list.startrandom()
         print '当前您没有开启一个自动考勤窗口无法开启随机考勤!'
         return False
@@ -129,17 +126,8 @@ class business(basebusiness):
 
 
     def mancheckin(self,key):
-        key = self.teachertest(key)
-        if not key:
-            return False
 
-        for index in range(len(self.list)):
-            if self.list[index].key['TeacherID'] == key['TeacherID']:
-                print '您已经对班级: %s 开启自动考勤　无法再次开启' % (self.list[index].key['ClassID'])
-                return False
-            if self.list[index].key['ClassID'] == key['ClassID']:
-                print '班级: %s 正在被老师: %s 考勤　无法对此班级发起考勤!' %(self.list[index].key['TeacherID'])
-                return False
+        return checkinNode(key).manCheckin()
 
 
 if __name__=='__main__':

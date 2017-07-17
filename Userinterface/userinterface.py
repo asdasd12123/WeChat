@@ -45,7 +45,6 @@ class SystemRun(object):
 
             else:
                 print "输入有误 没有对应输入的选项！"
-        self.Form()
 
     def att_output(self,key,list):
 
@@ -77,7 +76,6 @@ class SystemRun(object):
 
             else:
                 print "输入有误 没有对应输入的选项！"
-        self.Form()
 
     def teacherForm(self,key,list):
 
@@ -104,7 +102,10 @@ class SystemRun(object):
                 list.startrandom(key)
 
             elif (opNum == '3'):
-                pass
+                courseID = raw_input('请输入您要考勤的课程号!')
+                key['ClassID'] = courseID
+                if not list.mancheckin(key):
+                    print '开启考勤失败!'
 
             elif (opNum == '4'):
                 pass
@@ -133,14 +134,33 @@ class SystemRun(object):
 
             else:
                 print "输入有误 没有对应输入的选项！"
-        self.Form()
 
 
 
-    def adminForm(self,password):
-        print "*************欢迎进入管理员模拟控制菜单******************"
-        print "******************1.信息导入**************************"
-        print "******************2.回到上级目录**********************"
+    def adminForm(self,list):
+        while True:
+            print "*************欢迎进入管理员模拟控制菜单*****************"
+            print "******************1.教师信息导入**********************"
+            print "******************2.学生信息导入**********************"
+            print "******************3.课程信息导入**********************"
+            print "******************4.返回上一层************************"
+            opNum = raw_input("请输入您想要的操作：")
+
+            if opNum in ['1','2','3','4']:
+                outfile=raw_input('请输入导入外部文件路径 :')
+                if opNum=='1':
+                    if list.import_file.import_teacher(outfile):
+                        print '导入教师信息成功!'
+                elif opNum=='2':
+                    if list.import_file.import_stu(outfile):
+                        print '导入学生信息成功!'
+                elif opNum=='3':
+                   if list.import_file.import_class(outfile):
+                        print '导入课程信息成功!'
+                else:
+                    break
+            else:
+                print '错误输入,没有对应输入的选项!'
 
     def Form(self):
         Business=business()
@@ -168,12 +188,7 @@ class SystemRun(object):
                     continue
 
             elif (opNum == '3'):  #
-                adminWechatID = raw_input("请输入您的微信号：（管理员）")
-                key = Business.stuinfotest(adminWechatID)
-                if key:
-                    self.adminForm(key)
-                else:
-                    continue
+                self.adminForm(Business)
 
             elif (opNum == '4'):  # 退出系统
                 sys.exit(0)
