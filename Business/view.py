@@ -4,15 +4,6 @@ import re
 from Auxiliaryfunction import  Auxiliaryfunction
 import time
 
-
-def ch( data):
-    count = 0
-    for s in data:
-        if ord(s) > 127:
-            count += 1
-    return count
-
-
 class view(Auxiliaryfunction):
 
     def __init__(self):
@@ -100,8 +91,6 @@ class view(Auxiliaryfunction):
                 stuinfo[stu['StuID']][stu['checkin'+str(index)]]+=1
 
         for (key,item) in stuinfo.items():
-
-            number=ch(item['Name'])
             print '学号 :%-15s 姓名:%-10s出勤:%-2d 缺勤:%-2d 早退:%-2d 迟到:%-2d 请假:%-2d ' \
             %(key,item['Name'],item['normal'],item['Absence'],item['leaveEarlier'],
               item['Late'],item['approve'])
@@ -255,7 +244,7 @@ class view(Auxiliaryfunction):
             return False
 
         if not self.init(key):
-            print '初始化失败请检查您的键值是否正确!'
+            print '初始化考勤汇总表失败请检查您的键值是否正确!'
             return False
 
         self.detail_filename=filename
@@ -266,7 +255,7 @@ class view(Auxiliaryfunction):
         DataProcess(target=DataProcess.update, args=(self.sum_filename,'dl',olddata)).run()
 
         for line in olddata:
-            line['checkin'+key['SeqNum']]='Absence'
+            line['checkin'+key['SeqNum']]='normal'
             for (k,item) in stulist['checkin'].items():
                 if line['StuID']==k:
                     line['checkin'+key['SeqNum']]=item['Type']

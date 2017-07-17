@@ -9,8 +9,8 @@ class checkinNode(bashcheckin):
             print ' 当前已经存在自动考勤窗口无法再次开启!'
             return False
         if not self.getTime():
-            print '当前不是有效时间无法开启考勤!'
             return False
+
         stu_list = DataProcess(target=DataProcess.QueryObjectInfo,
         args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
         self.write_seq()

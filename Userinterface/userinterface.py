@@ -17,6 +17,7 @@ class SystemRun(object):
             print "*****************4.查看当前考勤结果*******************"
             print "*****************5.查看历史考勤结果*******************"
             print "*****************6.回到上级目录**********************"
+            list.tips(key)
             opNum = raw_input("请输入您想要的操作：")
             if (opNum == '1'):
                 key['ProofPath']=raw_input("请输入您的请假证据：（学生）")
@@ -84,7 +85,7 @@ class SystemRun(object):
             print "*****************1.开启自动请假***********************"
             print "*****************2.开启抽点考勤***********************"
             print "*****************3.开始手动考勤***********************"
-            print "*****************4.设置默认考勤规则********************"
+            print "*****************4.设置考勤缓冲时间********************"
             print "*****************5.出勤情况随堂（实时）统计*************"
             print "*****************6.生成出勤状况统计表******************"
             print "*****************7.出勤成绩输出***********************"
@@ -93,7 +94,7 @@ class SystemRun(object):
             print "****************10.回到上级目录***********************"
             opNum = raw_input("请输入您想要的操作：")
             if (opNum == '1'):
-                courseID=raw_input('请输入您要考勤的课程号!')
+                courseID=raw_input('请输入您要考勤的班级号!')
                 key['ClassID']=courseID
                 if not list.startcheckin(key):
                     print '开启考勤失败!'
@@ -108,7 +109,7 @@ class SystemRun(object):
                     print '开启考勤失败!'
 
             elif (opNum == '4'):
-                pass
+                list.maintain.rultSet(key)
 
             elif (opNum == '5'):
                 list.view.view_time(key)

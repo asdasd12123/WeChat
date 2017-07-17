@@ -4,7 +4,7 @@ import datetime
 import re
 from Auxiliaryfunction import Auxiliaryfunction
 '''
-在此模块中学生进行考勤　请假 　
+在此模块中学生进行考勤　请假 　查看
 '''
 
 class student_fun(object):
@@ -12,12 +12,16 @@ class student_fun(object):
     def view(self,filename,stuid,teacherid,num,counter={}):
 
         stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(filename,)).run()
+        if not stuinfo:
+            print '教师尚未统计此次的考勤汇总信息,所以无法查看结果'
+            return False
 
         if num==1:
             stuinfo = Auxiliaryfunction().statistics_calculation(stuinfo)
 
         name = DataProcess(target=DataProcess.QueryObjectInfo,
                            args=('../InData/teacherInfo.csv', {'TeacherID': teacherid})).run()[0]['TeacherName']
+
         classname = DataProcess(target=DataProcess.QueryObjectInfo,
         args=('../InData/courseInfo.csv', {'TeacherID': teacherid})).run()[0]['CourseName']
 
@@ -54,7 +58,12 @@ class student_fun(object):
         filelist=[]
         for line in data:
             filename = '../InData/' + line + '_' + key['ClassID'] +'_Sum.csv'
-            filelist.append(filename)
+            if DataProcess(target=DataProcess.QueryObjectKey,args=(filename,)).run():
+                filelist.append(filename)
+
+        if filelist:
+            print '您的任何一位教师都尚未统计考勤汇总信息,所以无法查看结果'
+            return False
 
         num={}
         num['normal']=0
@@ -84,9 +93,7 @@ class student_fun(object):
             return False
 
         filename='../InData/'+line['TeacherID']+'_'+key['ClassID']+'_'+line['SeqID']+'_Detail.csv'
-        self.view(filename,key['StuID'],line['TeacherID'])
-
-
+        self.view(filename,key['StuID'],line['TeacherID'],1)
 
 
     def  Insert_leave_record(self,key): #向历史记录添加请假 #学生请假休息包括 学号　提交类型　请假证明　提交时间

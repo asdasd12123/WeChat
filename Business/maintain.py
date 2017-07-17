@@ -1,15 +1,13 @@
 #coding=utf-8
 from DataProcess.DataProcess import DataProcess
 from DataProcess.DataProcess import DataProcess
-
+import time
 class maintain(object):
-
     '''
     手动修改
     手动考勤
     手动设置个人考勤规则
     '''
-
     def is_can(self,key):
         list=DataProcess(target=DataProcess.QueryObjectInfo,args=('../InData/studentInfo.csv',key)).run()
         if list or len(list)!=0:
@@ -109,10 +107,10 @@ class maintain(object):
 
 
         if not stuinfo or 'checkin'+seqnum not in stuinfo[0].keys():
-            print '该次考勤不存在请检查您的输入!'
+            print '该次考勤汇总表不存在请检查您的输入!'
             return False
 
-        print '该次学生考勤状态如下:'
+        print '该次考勤所有学生的考勤状态如下:'
         for stu in stuinfo:
             print stu['StuID'] +' : '+stu['checkin'+seqnum]
 
@@ -129,14 +127,45 @@ class maintain(object):
             return False
 
         print '该学生的该次的考勤状态 : %s' %(stu_info['checkin'+seqnum])
-        stu_info['checkin'+seqnum]=raw_input('请输入你希望修改的值!')
+        print '请按照以下选项输入状态 非法输入默认为缺勤!'
+        print ' 1　正常　2　迟到　３　早退　４　缺勤 5　请假已批准'
+        type=raw_input('请输入你希望修改的值!')
+        if type not in ['1','2','3','4','5']:
+            print '您输入了非法选项默认结果为缺勤!'
+            stu_info['checkin'+seqnum]='Absence'
+        else:
+            stu_info['checkin' + seqnum]={'1': 'normal', '2': 'Late', '3': 'leaveEarlier', '4': 'Absence', '5': 'approve'}[type]
+            print '修改成功!'
         return DataProcess(target=DataProcess.update,args=(filename,'w',[stu_info],['StuID'])).run()
 
-    def rultSet(self):
-        pass
+    def rultSet(self,key):
+        while True:
+            buffer=raw_input('请输入您为学生设置的考勤信息上传缓冲时间!(在此时间内的考勤属于有效，该时间至少为1分钟,最长为10分钟)')
+            try:
+                buffer=int(buffer)
+            except TypeError and ValueError:
+                print '您的输入不符合规则,请重新输入!'
+                continue
 
-    def readRult(self):
-        pass
+            if buffer < 1 or buffer > 10:
+                print '缓冲时间大于或小于当前的规定范围请重新输入!'
+                time.sleep(1)
+            else:
+                print '设置完成,下一次发起考勤时会自动采用此次的设置!'
+                break
+
+        data={'TeacherID':key['TeacherID'],'bufferTime': buffer}
+        return DataProcess(target=DataProcess.update,args=('../InData/set.csv','w',[data],['TeacherID'])).run()
+
+    def readRult(self,key):
+        rule=DataProcess(target=DataProcess.QueryObjectInfo,
+        args=('../InData/set.csv',{'TeacherID':key['TeacherID']})).run()
+
+        if not rule:
+            return {'TeacherID':key['TeacherID'],'bufferTime':'3'}
+
+        else:
+            return rule[0]
 
 if __name__=='__main__':
     #maintain({'TeacherID':'2004633','ClassID':'软件工程1401'}).mainTain_info()

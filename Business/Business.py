@@ -52,6 +52,20 @@ class business(basebusiness):
         print '当前没有与您有关的自动考勤窗口'
         return False
 
+    def tips(self,key):
+        for list in self.list:
+            if list.key['ClassID']==key['ClassID']:
+                print '当前工号为:%s 的老师正在向您的班级发起自动考勤!' %(list.key['TeacherID'])
+                for info in list.random_info:
+                    if info['StuID']==key['StuID']:
+                        print '当前存在和您有关的抽点考勤!'
+                        print list.random_info
+                return True
+        return False
+
+
+
+
     def startrandom(self,key):
 
         for list in self.list:
@@ -59,6 +73,13 @@ class business(basebusiness):
                 return list.startrandom()
         print '当前您没有开启一个自动考勤窗口无法开启随机考勤!'
         return False
+
+    def time_check(self,checknode): #判断是否下课
+        localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
+        if localtime>checknode.end_time:
+            return False
+        return True
+
 
 
     def startcheckin(self,key): #　教师微信号　学生班级号
@@ -70,47 +91,41 @@ class business(basebusiness):
             print '班级不存在请检查您的输入信息!'
             return False
 
-        if self.list==[]:
-            c=checkinNode(key)
-            if not c.startauto():
-                return False
+        c=checkinNode(key)
+
+        for index in self.list:
+            if index.key['TeacherID']==key['TeacherID']:
+                if self.time_check(index):
+                    print '您已经对班级:%s开启自动考勤无法再次开启' %(index.key['ClassID'])
+                    return False
+                else:
+                    if self.list.index(index)==0:
+                        self.stopCheckIn()
+                    else:
+                        self.list.remove(index)
+
+        for index in self.list:
+            if index.key['ClassID']==key['ClassID']:
+                if self.time_check(index):
+                    print '班级:%s正在被老师:%s考勤,无法对此班级发起考勤!' %(index.key['ClassID'],index.key['TeacherID'])
+                    return False
+                else:
+                    if self.list.index(index)==0:
+                        self.stopCheckIn()
+                    else:
+                        self.list.remove(index)
+
+        if not c.startauto():
+            return False
+
+        if self.list == []:
             self.list.append(c)
-            print '发起考勤成功!'
             self.startCheckTime()
-            return True
-
-
-        for index in range(1,len(self.list)):
-            if self.list[index].key['TeacherID']==key['TeacherID']:
-                print '您已经对班级: %s 开启自动考勤　无法再次开启' %(self.list[index].key['ClassID'])
-                return False
-            if self.list[index].key['ClassID']==key['ClassID']:
-                print '班级: %s 正在被老师: %s 考勤　无法对此班级发起考勤!' %(self.list[index].key['TeacherID'])
-                return False
-
-        localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
-        if localtime>self.list[0].end_time:
-            c = checkinNode(key)
-            if not c.startauto():
-                return False
-            self.list.append(c)
-            print '发起考勤成功!'
-            self.stopCheckIn()
-            return True
-
         else:
-            if self.list[0].key['TeacherID']==key['TeacherID']:
-                print '您已经对班级: %s 开启自动考勤　无法再次开启' %(self.list[0].key['ClassID'])
-                return False
-            if self.list[0].key['ClassID']==key['ClassID']:
-                print '班级: %s 正在被老师: %s 考勤　无法对此班级发起考勤!' %(self.list[0].key['TeacherID'])
-                return False
-            c = checkinNode(key)
-            if not c.startauto():
-                return False
-            print '发起考勤成功!'
             self.list.append(c)
-            return True
+
+        print '发起考勤成功!'
+        return True
 
 
 

@@ -1,7 +1,9 @@
 StuID,IsSucc,checkTime,ProofPath,checkinType,checkinResult
-201416920104,True,null,null,auto,approve
+222222222222,True,null,nsadadasdasd,auto,approve
 201416920105,False,null,null,auto,Absence
 201416920106,False,null,null,auto,Absence
 201416920101,False,null,null,auto,Absence
 201416920102,False,null,null,auto,Absence
 111111111111,False,null,null,auto,Absence
+111111111111,False,null,null,random,Absence
+201416920102,False,null,null,random,Absence

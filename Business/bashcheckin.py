@@ -2,6 +2,7 @@
 import datetime
 import ConfigParser
 import re
+from maintain import maintain
 from DataProcess.DataProcess import DataProcess
 import random
 import time
@@ -12,11 +13,12 @@ class bashcheckin(object):
         self.counter = {'auto': {}, 'random': {}}
         self.status = False
         self.random_info = []
+        self.time=int(maintain().readRult(key)['bufferTime'])*60
         self.start_time =None
+        self.start=datetime.datetime.now()
         self.end_time=None
         self.key=key
         self.filename=None
-        #self.rule=Auxiliaryfunction().read(key)
         cf = ConfigParser.ConfigParser()
         cf.read('../InData/settings.ini')
         info = map((lambda x: re.split('-|:', x[1])), cf.items('sectime'))
@@ -25,10 +27,17 @@ class bashcheckin(object):
     def getTime(self):
         localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
         for Time in self.Timeinfo:
-            if localtime >= Time[0] - 600 and localtime <= Time[1] - 59:
-                self.end_time = Time[1]
-                self.start_time = localtime
-                return True
+            if localtime >= Time[0] - self.time -300 and localtime <= Time[1] - self.time +300:
+                if localtime>=Time[0] -self.time and localtime <= Time[1]-self.time:
+                    self.end_time = Time[1]
+                    self.start_time = localtime
+                    return True
+                elif localtime >= Time[0] - self.time - 300 and localtime <Time[0]-self.time:
+                    print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
+                elif localtime <= Time[1] - self.time + 300 and localtime>Time[1]-self.time:
+                    print '您已超过考勤缓冲有效范围%d秒,此时给学生上传信息的时间不足所以无法开启,你可设置考勤缓冲设置调整此设置' % (localtime-Time[1] +self.time)
+                return False
+        print '当前不是有效时间无法开启考勤!'
         return False
 
 
@@ -36,7 +45,6 @@ class bashcheckin(object):
         '''
         格式化初始数据　
         '''
-
         info = []
         for line in stu_info_list:
             data = {}
@@ -64,7 +72,7 @@ class bashcheckin(object):
 
     def getseqnum(self):
         seqinfo=DataProcess(target=DataProcess.QueryObjectInfo,
-        args=('../InData/seq.csv',{'TeacherID':'2004633','ClassID':'软件工程1401'})).run()
+        args=('../InData/seq.csv',{'TeacherID':self.key['TeacherID'],'ClassID':self.key['ClassID']})).run()
         if not seqinfo:
             return '1'
         return str(int(seqinfo[-1]['SeqID'])+1)
@@ -88,20 +96,19 @@ class bashcheckin(object):
         studentlist = DataProcess(target=DataProcess.QueryObjectInfo,
         args=('../InData/studentInfo.csv', {'ClassID': self.key['ClassID']})).run()
         while True:
-            #num=raw_input('Please enter a percentage of the spot checks!')
-            num=100
+            num=raw_input('请输入需要抽点的百分比!')
             try:
                 num=float(num)
             except TypeError and ValueError:
-                print 'You have entered an invalid format. Please enter a floating point number!'
+                print '您的输入不符合规则,请重新输入!'
                 continue
 
             if num<=0 or num>100 or int(len(studentlist) * num / 100)==0:
-                print 'Number exceeds or below standard. Please re-enter!'
+                print '抽点的数量大于或小于当前学生的数量请重新输入!'
                 time.sleep(1)
             else:
                 num = int(len(studentlist) * num / 100)
-                print 'You have a total of %d people selected this time!' %(num)
+                print '抽点完成您此时共抽点了%-3d名学生!' %(num)
                 break
 
         while len(stulist)!=num:
@@ -129,8 +136,8 @@ class bashcheckin(object):
         num = random.randint(0, 1)
         if num:
             data['IsSucc'] = 'True'
-            seconds = (data['checkTime'] - self.start_time).seconds
-            if seconds <=  60:
+            seconds = (data['checkTime'] - self.start).seconds
+            if seconds <=  self.time:
                 print '考勤成功!'
                 data['checkinResult'] = 'normal'
             else:

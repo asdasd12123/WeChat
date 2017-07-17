@@ -1,9 +1,0 @@
-StuID,IsSucc,checkTime,ProofPath,checkinType,checkinResult
-201416920104,False,null,null,man,approve
-201416920105,False,null,null,man,Late
-201416920106,False,null,null,man,Absence
-201416920101,False,null,null,man,normal
-201416920102,False,null,null,man,Late
-111111111111,False,null,null,man,Late
-201416920104,False,null,null,man,Late
-222222222222,False,null,null,man,Late
