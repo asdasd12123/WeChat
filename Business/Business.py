@@ -12,7 +12,6 @@ from Auxiliaryfunction import Auxiliaryfunction
 class business(basebusiness):
 
     def __init__(self):
-
         basebusiness.__init__(self)
 
         self.stufunct=student_fun()

@@ -1,7 +1,5 @@
 #coding=utf-8
 import time
-import ConfigParser
-import re
 import threading
 
 class basebusiness(object):

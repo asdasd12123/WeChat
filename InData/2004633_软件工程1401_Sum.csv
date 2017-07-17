@@ -1,7 +1,8 @@
-StuID,checkin1,checkin2,checkin3,checkin6,checkin7
-201416920104,approve,Absence,approve,Absence,Absence
-201416920105,Absence,Absence,approve,Absence,Absence
-201416920106,Absence,Absence,approve,Absence,Absence
-201416920101,Absence,Absence,approve,Absence,Absence
-201416920102,approve,Absence,approve,Absence,Absence
-111111111111,Absence,Absence,approve,Absence,Absence
+StuID,checkin1,checkin2,checkin3,checkin4,checkin5,checkin6,checkin7
+201416920104,approve,Absence,approve,Absence,Absence,Absence,Absence
+201416920105,Absence,Absence,approve,Absence,Absence,Absence,Absence
+201416920106,Absence,Absence,approve,Absence,Absence,Absence,Absence
+201416920101,Absence,Absence,approve,Absence,Absence,Absence,Absence
+201416920102,Absence,Absence,approve,Absence,Absence,Absence,Absence
+111111111111,Absence,Absence,approve,Absence,Absence,Absence,Absence
+222222222222,Absence,Absence,Absence,Absence,Absence,Absence,Absence
