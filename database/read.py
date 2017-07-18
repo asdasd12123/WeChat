@@ -6,26 +6,25 @@ class Read(object):
 
     def read(self, filename, keylist=None):
         # 信息通配符 一次只能接受一个原子字典
-
         try:
             with open(filename, "rb") as csv_file:
                 reader = csv.DictReader(csv_file)
                 data = []
                 for info in reader:
-                    if not keylist or type(keylist) !=dict:
+                    if not keylist or type(keylist) != dict:
                         data.append(info)
 
                     else:
                         count = 0
                         for (key, item) in keylist.items():
-                            if item is '*':
+                            if item == '*':
                                 continue
-                            elif item is '?':
+                            elif item == '?':
                                 count = 2
-                            elif not info.has_key(key) or info[key] != item:
+                            elif not info. has_key(key) or info[key] != item:
                                 count = 1
                                 break
-                        if  count % 2 is 0:
+                        if count % 2 == 0:
                             data.append(info)
                         if count is 2:
                             break

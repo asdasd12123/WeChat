@@ -30,13 +30,13 @@ class Write(object):
                         d[k[0]] = k[1]
                     error.append(d)
 
-                keylist=error
+                keylist = error
 
-                FIEDLS = keylist[0].keys()  #类变量记录列名
+                FIEDLS = keylist[0].keys()  # 类变量记录列名
                 writer = csv.DictWriter(csv_file,restval='',fieldnames=FIEDLS)
                 writer.writerow(dict(zip(FIEDLS, FIEDLS)))  # 写表头
                 for key in keylist:
-                    writer.writerow(key)# 写数据
+                    writer.writerow(key)  # 写数据
                 csv_file.close()
                 return True
 
@@ -44,6 +44,3 @@ class Write(object):
             print "File open error : " + filename + "\nplease check the filename"
             return False
 
-if __name__=='__main__':
-    read=Read().read("course.csv")
-    Write().write("songjian.csv",read)

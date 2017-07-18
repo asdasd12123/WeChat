@@ -1,4 +1,4 @@
-# coding = utf-8
+# coding=utf-8
 import csv
 import os
 import collections
@@ -39,8 +39,8 @@ class Add(object):
                 keylist = error
 
                 FIEDLS = keylist[0].keys()  # 类变量记录列名
-                writer = csv.DictWriter(csv_file,fieldnames=FIEDLS)
-                if index is 1:
+                writer = csv.DictWriter(csv_file, fieldnames=FIEDLS)
+                if index == 1:
                     writer.writerow(dict(zip(FIEDLS, FIEDLS)))  # 写表头
                 for key in keylist:
                     writer.writerow(key)    # 写数据
@@ -51,6 +51,3 @@ class Add(object):
             print "File open error : " + filename + "\nplease check the filename"
             return False
 
-if __name__=='__main__':
-    read=Read().read('course.csv')
-    Add().add('songjian123.csv',read)

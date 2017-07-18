@@ -1,55 +1,29 @@
-#coding=utf-8
-from DataLayerInterface.DataLayerInterface import DataLayerInterface
-from Check import Check
-from Query import Query
-import os
+# coding=utf-8
+from database.database import DataAPI
+from check import Check
+from query import Query
+
+
 class Update(object):
 
     @staticmethod
-    def update(filename,Type,outdata,keys=[]):
-        '''更新数据 可以覆盖 添加 和追加到文件末尾  外部数据必须是以列表为容器　元素是字典  '''
-        error=Check.formatcheck(outdata)
-        if Check.getresult(error):
+    def update(filename, _type, outdata, keys=[]):
+        # 更新数据 可以覆盖 添加 和追加到文件末尾  外部数据必须是以列表为容器　元素是字典
+        error = Check.format_check(outdata)
+        if Check.get_result(error):
             print error
             return False
 
-        if Type=='w' or Type =='dl':
-            data=Query.QueryObjectInfo(filename,None)
-            data=Check.delrepeat(outdata,data,keys,Type)
-            return DataLayerInterface(filename,'w',data).run()
+        if _type == 'w' or _type == 'dl':
+            data = Query.query_target_info(filename, None)
+            data = Check.del_repeat(outdata, data, keys, _type)
+            return DataAPI(filename, 'w', data).run()
 
-        elif Type=='a':
-            return DataLayerInterface(filename, 'a', outdata).run()
+        elif _type == 'a':
+            return DataAPI(filename, 'a', outdata).run()
 
         else:
-            print 'invalid parameter : %s' %(Type)
+            print 'invalid parameter : %s' % (_type,)
             return False
-
-if __name__=='__main__':
-    read=Query.QueryObjectInfo('../DataProcess/course.csv')
-    #read1=Query.QueryObjectInfo('a.csv')
-    #print read
-    #if Query.QueryFileKey('../DataLayerInterface/3.csv'):
-        #print 'asdasd'
-    #read1=Query.QueryObjectInfo('../DataLayerInterface/3.csv',None)
-    #print read1
-    #read=Update.checkformat(read,read1)
-    #print read
-    #print read
-    '''if Update.update('a.csv','w',read):
-        print 'success'
-    else:
-        print 'failed'  '''
-
-    data=Query.QueryObjectInfo('../DataProcess/course.csv')
-    if Update.update('a.cSV','w',data):
-        print 'success'
-    else:
-        print 'failed'
-
-
-
-
-
 
 

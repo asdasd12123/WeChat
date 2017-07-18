@@ -1,12 +1,13 @@
-#coding=utf-8
-from DataProcess.DataProcess import DataProcess
+# coding=utf-8
+from dataoperation.manage import DataManage
 '''
 此模块对　出勤情况历史统计　出勤成绩输出　出勤情况随堂（实时）统计　　请假认定 考勤规则的指定
 '''
 
-class Auxiliaryfunction(object):
 
-    def __calculation(self,absence): #子计算
+class AuxiliaryFunction(object):
+
+    def __calculation(self,absence): # 子计算
         absencenum = 0  # 缺勤人数
         subnum = 0  # 请假提交人数
         appnum = 0  # 请假批准人数
@@ -45,48 +46,46 @@ class Auxiliaryfunction(object):
         info['grade'] = grade
         return info
 
-
-
-    def statistics_calculation(self,stuinfolist): #给定一定数量的学生考勤信息计算该信息内所有学生的考勤结果
+    def statistics_calculation(self, stuinfolist):  # 给定一定数量的学生考勤信息计算该信息内所有学生的考勤结果
         absence = {}
-        keys={'null':0,'normal':1,'Late':2,'leaveEarlier':3,'Absence':4,'Submitted':5,'approve':6}
+        keys = {'null': 0, 'normal': 1, 'Late': 2, 'leaveEarlier': 3, 'Absence': 4, 'Submitted': 5, 'approve': 6}
 
         for stu in stuinfolist:
-            info={}
+            info = {}
             if absence.has_key(stu['StuID']):
                 continue
             else:
                 absence[stu['StuID']] = info
-            info['Type']='null'
-            info['StuName']=DataProcess(target=DataProcess.QueryObjectInfo,
-            args=('../InData/studentInfo.csv',{'StuID':stu['StuID']})).run()[0]['StuName']
+            info['Type'] = 'null'
+            info['StuName']=DataManage(DataManage.target_info,
+                                       args=('../InData/studentInfo.csv', {'StuID':stu['StuID']})).run()[0]['StuName']
 
         for stu in stuinfolist:
             info=absence[stu['StuID']]
             if keys[info['Type']]< keys[stu['checkinResult']]:
-                if info['Type']=='null':
-                    info['Type']=stu['checkinResult']
-                elif info['Type']=='normal' or info['Type']=='Late':
-                    if stu['checkinResult']=='Absence':
-                        info['Type']='leaveEarlier'
+                if info['Type'] == 'null':
+                    info['Type'] = stu['checkinResult']
+                elif info['Type'] == 'normal' or info['Type'] == 'Late':
+                    if stu['checkinResult'] == 'Absence':
+                        info['Type'] = 'leaveEarlier'
                     else:
-                        info['Type']=stu['checkinResult']
-                elif info['Type']=='leaveEarlier' or info['Type']=='Absence':
-                    if keys[stu['checkinResult']]>=5:
-                        info['Type']=stu['checkinResult']
+                        info['Type'] = stu['checkinResult']
+                elif info['Type'] == 'leaveEarlier' or info['Type'] == 'Absence':
+                    if keys[stu['checkinResult']] >= 5:
+                        info['Type'] = stu['checkinResult']
                     else:
                         continue
                 else:
                     info['Type'] = stu['checkinResult']
             else:
-                if info['Type']=='Absence':
-                    if stu['checkinResult']=='normal' or  stu['checkinResult']=='Late':
-                        info['Type']='Late'
+                if info['Type'] == 'Absence':
+                    if stu['checkinResult'] == 'normal' or  stu['checkinResult'] == 'Late':
+                        info['Type'] = 'Late'
                 continue
 
         return self.__calculation(absence)
 
-    def dis_play(self,stuinfolist):  #自带格式化并显示考勤结果到终端
+    def dis_play(self, stuinfolist):  # 自带格式化并显示考勤结果到终端
         checkinfo = self.statistics_calculation(stuinfolist)
         if not checkinfo:
             print '数据不合法无法进行计算!'
@@ -102,18 +101,3 @@ class Auxiliaryfunction(object):
                 print '学号 :%-15s 姓名 :%-15s 考勤状况 :%-12s ' % (key, item['StuName'], item['Type'])
         return True
 
-
-
-
-
-
-
-
-
-if __name__=='__main__':
-    #Auxiliaryfunction().addset('asdasd')
-    #Auxiliaryfunction().ruleset('asdasd')
-    #print Auxiliaryfunction().read('asdasd')
-    Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassID':"软件工程1401"})
-    #Auxiliaryfunction().historical_statistics({'TeacherID':'2004633','ClassName':'软件工程1401','SeqNum':'1'})
-    #Auxiliaryfunction().view__time({'TeacherID':'2004633','ClassName':"软件工程1401"})

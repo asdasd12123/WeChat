@@ -1,24 +1,26 @@
-#coding=utf-8
-from DataProcess.DataProcess import DataProcess
+# coding=utf-8
 import re
+from dataoperation.manage import DataManage
 
-class Import_file(object):
-    TeacherInfo={"TeacherID":'^[\d]{7}$',
-                           "TeacherName":r'^[\x80-\xff]{6,18}$',
-                           "WeChatID":'^[a-zA-Z0-9_]+$'}
 
-    CourseInfo={"CourseID":'^[\d]{8}$',
-                           "CourseName":'^[\x80-\xff]{6,18}$',
-                           "TeacherID":'^[\d]{7}$',
-                           "ClassName":'[\x80-\xff]+\d{4}$'}
+class ImportFile(object):
 
-    StudentInfo={"StuID":'^[\d]{12}$',
-                           "StuName":'^[\x80-\xff]{6,18}$',
-                           "WeChatID":'^[a-zA-Z0-9_]+$',
-                           "ClassID":'[\x80-\xff]+\d{4}$'}
+    teacher_info = {"TeacherID":'^[\d]{7}$',
+                            "TeacherName":r'^[\x80-\xff]{6,18}$',
+                            "WeChatID":'^[a-zA-Z0-9_]+$'}
 
-    def Stu_Operation(self,out_file,path):
-        data=DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
+    course_info={"CourseID":'^[\d]{8}$',
+                            "CourseName":'^[\x80-\xff]{6,18}$',
+                            "TeacherID":'^[\d]{7}$',
+                            "ClassName":'[\x80-\xff]+\d{4}$'}
+
+    student_info={"StuID":'^[\d]{12}$',
+                            "StuName":'^[\x80-\xff]{6,18}$',
+                            "WeChatID":'^[a-zA-Z0-9_]+$',
+                            "ClassID":'[\x80-\xff]+\d{4}$'}
+
+    def stu_operation(self, out_file, path):
+        data = DataManage(DataManage.target_info, args=(out_file,)).run()
         if not data:
             return None
         try:
@@ -29,13 +31,13 @@ class Import_file(object):
             return False
         return data
 
-    def Course_operation(self,out_file,path=''):
-        course_data = DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
+    def course_operation(self, out_file, path=''):
+        course_data = DataManage(DataManage.target_info, args=(out_file,)).run()
 
         if not course_data:
             return None
 
-        new_data=[]
+        new_data = []
         try:
             for line in course_data:
                 major = line['ClassNums']
@@ -53,7 +55,6 @@ class Import_file(object):
                     class_name = major_info[0]
 
                     for i in range(begin, end + 1):
-                    # ['CourseID', 'CourseName', 'TeacherID', 'ClassNums']
                         dict_line = {}
                         dict_line['CourseID'] = line['CourseID']
                         dict_line['CourseName'] = line['CourseName']
@@ -65,35 +66,36 @@ class Import_file(object):
             return False
         return new_data
 
-    def import_file(self,source_file,out_file,format=[],Primary_key=[],operation=None,Path=''):
+    def import_file(self,source_file,out_file, format={},Primary_key=[],operation=None,Path=''):
         if operation:
             data=operation(out_file,Path)
             if not data:
                 print '文件不存在或与标准形式不符,请检查您的输入!'
                 return False
         else:
-            data=DataProcess(target=DataProcess.QueryObjectInfo,args=(out_file,)).run()
-        error=DataProcess(target=DataProcess.formatcheck,args=(data,format)).run()
-        if DataProcess(target=DataProcess.getresult,args=(error,)).run():
-            for (key,item) in error.items():
-                print key,item
+            data = DataManage(DataManage.target_info, args=(out_file,)).run()
+        error = DataManage(DataManage.format_check, args=(data, format)).run()
+        if DataManage(DataManage.get_result, args=(error,)).run():
+            for (key, item) in error.items():
+                print key, item
             return False
         for key in Primary_key:
-            DataProcess(target=DataProcess.update,args=(source_file,'w',data,key)).run()
-            data=DataProcess(target=DataProcess.QueryObjectInfo,args=(source_file,)).run()
+            DataManage(DataManage.update, args=(source_file, 'w', data, key)).run()
+            data = DataManage(DataManage.target_info, args=(source_file,)).run()
         return True
 
-    def import_stu(self,out):
+    def import_stu(self, out):
 
-        return self.import_file('../InData/studentInfo.csv',out,self.StudentInfo,[['StuID'],['WeChatID']],
-        self.Stu_Operation,'D/:')
+        return self.import_file('../InData/studentInfo.csv', out,
+                                self.student_info, [['StuID'], ['WeChatID']], self.stu_operation, 'D/:')
 
-    def import_teacher(self,out):
-        return self.import_file('../InData/teacherInfo.csv', out, self.TeacherInfo, [['TeacherID'], ['WeChatID']])
+    def import_teacher(self, out):
+        return self.import_file('../InData/teacherInfo.csv', out,
+                                self.teacher_info, [['TeacherID'], ['WeChatID']])
 
-    def import_class(self,out):
-        return self.import_file('../InData/courseInfo.csv', out,self.CourseInfo, [['CourseID','ClassName']],
-                                self.Course_operation)
+    def import_class(self, out):
+        return self.import_file('../InData/courseInfo.csv', out,
+                                self.course_info, [['CourseID', 'ClassName']], self.course_operation)
 
 
 if __name__=='__main__':

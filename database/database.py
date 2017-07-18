@@ -1,4 +1,4 @@
-#coding=utf8
+# coding=utf8
 
 import read
 import write
@@ -11,9 +11,9 @@ None  "" False [] {} () 0 都是布尔类型假
 
 class DataAPI(object):
 
-    def __init__(self, filename, type, key=None):
-        self.filename=filename
-        self.type = type
+    def __init__(self, filename, _type, key=None):
+        self.filename = filename
+        self.type = _type
         self.key = key
         self.read = read.Read()
         self.write = write.Write()
@@ -25,11 +25,11 @@ class DataAPI(object):
             return False
 
         elif self.type == 'r':
-            return self.read.read(self.filename,self.key)
+            return self.read.read(self.filename, self.key)
         elif self.type == 'w':
-            return self.write.write(self.filename,self.key)
+            return self.write.write(self.filename, self.key)
         else:
-            return self.add.add(self.filename,self.key)
+            return self.add.add(self.filename, self.key)
 
 
 
