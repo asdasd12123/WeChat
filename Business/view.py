@@ -21,26 +21,24 @@ class view(Auxiliaryfunction):
         return True
 
     def Take_leave_absence(self,stuID):  # 请假认定
-        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(self.detail_filename, stuID)).run()[0]
+        key={'StuID':stuID['StuID'],'checkinType':'leave'}
+        stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(self.detail_filename, key)).run()[0]
         print '学号：' + stuinfo['StuID'] + '   该学生的请假证明路径为 : ' + stuinfo['ProofPath']
+        stuinfo['IsSucc']='True'
         while True:
             num = raw_input('是否批准该学生的假条 ? yes or no \n')
             if num == 'yes':
-                stuinfo['IsSucc'] = 'True'
                 stuinfo['checkinResult'] = 'approve'
-                DataProcess(target=DataProcess.update,
-                            args=(self.detail_filename, 'w', [stuinfo], ['StuID', 'checkstartTime'])).run()
                 break
             elif num == 'no':
-                stuinfo['IsSucc'] = 'True'
                 stuinfo['checkinResult'] = 'Absence'
-                DataProcess(target=DataProcess.update,
-                            args=(self.detail_filename, 'w', [stuinfo], ['StuID', 'checkinType'])).run()
                 break
             else:
                 print '请输入标准的选项!'
                 time.sleep(1)
                 continue
+        return DataProcess(target=DataProcess.update,
+                        args=(self.detail_filename, 'w', [stuinfo], ['StuID', 'checkinType'])).run()
 
     def view_time(self,key):  # 输入教师教工号和班级号的字典　查看最近历史的一次考勤
 

@@ -7,6 +7,7 @@ from studentfunction import student_fun
 from maintain import maintain
 from view import view
 from import_file import Import_file
+import copy
 
 class business(basebusiness):
 
@@ -59,7 +60,6 @@ class business(basebusiness):
                 for info in list.random_info:
                     if info['StuID']==key['StuID']:
                         print '当前存在和您有关的抽点考勤!'
-                        print list.random_info
                 return True
         return False
 
@@ -84,6 +84,7 @@ class business(basebusiness):
 
     def startcheckin(self,key): #　教师微信号　学生班级号
 
+        key=copy.deepcopy(key)
         teacherinfo = DataProcess(target=DataProcess.QueryObjectInfo,
         args=('../InData/courseInfo.csv', {'ClassName': key['ClassID']})).run()
 
@@ -92,7 +93,6 @@ class business(basebusiness):
             return False
 
         c=checkinNode(key)
-
         for index in self.list:
             if index.key['TeacherID']==key['TeacherID']:
                 if self.time_check(index):

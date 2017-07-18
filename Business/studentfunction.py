@@ -61,7 +61,7 @@ class student_fun(object):
             if DataProcess(target=DataProcess.QueryObjectKey,args=(filename,)).run():
                 filelist.append(filename)
 
-        if filelist:
+        if not filelist:
             print '您的任何一位教师都尚未统计考勤汇总信息,所以无法查看结果'
             return False
 
@@ -121,7 +121,7 @@ class student_fun(object):
         data['checkTime'] = str(datetime.datetime.now())[:-7]
         data['ProofPath'] = key['ProofPath']
         data['checkinType'] = 'leave'
-        data['IsSucc'] = 'True'
+        data['IsSucc'] = 'False'
         data['checkinResult'] = 'Submitted'
         print '提交假条成功!'
         return DataProcess(target=DataProcess.update,args=(filename[0],'a',[data])).run()

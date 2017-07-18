@@ -32,10 +32,10 @@ class bashcheckin(object):
                     self.end_time = Time[1]
                     self.start_time = localtime
                     return True
-                elif localtime >= Time[0] - self.time - 300 and localtime <Time[0]-self.time:
+                elif localtime < Time[0]-self.time and localtime>=Time[0]-600:
                     print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
-                elif localtime <= Time[1] - self.time + 300 and localtime>Time[1]-self.time:
-                    print '您已超过考勤缓冲有效范围%d秒,此时给学生上传信息的时间不足所以无法开启,你可设置考勤缓冲设置调整此设置' % (localtime-Time[1] +self.time)
+                elif localtime < Time[1]-60  and localtime>Time[1]-self.time:
+                    print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
                 return False
         print '当前不是有效时间无法开启考勤!'
         return False
