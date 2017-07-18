@@ -7,8 +7,6 @@ import os
 class SystemRun(object):
 
     def stuForm(self,key,list):
-
-
         while True:
             print "*************欢迎进入学生模拟控制菜单******************"
             print "*****************1.在线请假*************************"
@@ -81,14 +79,14 @@ class SystemRun(object):
     def teacherForm(self,key,list):
 
         while True:
-            print "*************欢迎进入教师模拟控制菜单*******************"
+            print "*************欢迎进入教师模拟控制菜单******************"
             print "*****************1.开启自动请假***********************"
-            print "*****************2.开启抽点考勤***********************"
+            print "*****************2.开启抽点考勤************************"
             print "*****************3.开始手动考勤***********************"
             print "*****************4.设置考勤缓冲时间********************"
-            print "*****************5.出勤情况随堂（实时）统计*************"
+            print "*****************5.出勤情况随堂（实时）统计************"
             print "*****************6.生成出勤状况统计表******************"
-            print "*****************7.出勤成绩输出***********************"
+            print "*****************7.出勤成绩统计汇总输出****************"
             print "*****************8.学生信息维护***********************"
             print "*****************9.考勤信息维护***********************"
             print "****************10.回到上级目录***********************"
@@ -115,12 +113,14 @@ class SystemRun(object):
                 list.view.view_time(key)
 
             elif (opNum == '6'):  # 回到主菜单
-                key['ClassID']=raw_input('请输入需要计算的班级')
-                key['SeqNum']=raw_input('请输入考勤次序号')
-                list.view.creat_sum(key)
+                if list.can_statistics(key):
+                    key['ClassID']=raw_input('请输入需要计算的班级')
+                    key['SeqNum']=raw_input('请输入考勤次序号')
+                    list.view.creat_sum(key)
 
             elif (opNum == '7'):
-                self.att_output(key,list)
+                if list.can_statistics(key):
+                    self.att_output(key,list)
 
             elif (opNum == '8'):
                 list.maintain.mainTain_stu(key)

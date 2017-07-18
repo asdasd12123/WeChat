@@ -39,10 +39,6 @@ class checkinNode(bashcheckin):
 
     def manCheckin(self):  # 手动考勤
 
-        if self.getTime():
-            print '当前是上课时间无法开启手动考勤!'
-            return False
-
         stuinfo = DataProcess(target=DataProcess.QueryObjectInfo,
         args=('../InData/studentInfo.csv',{'ClassID': self.key['ClassID']})).run()
 

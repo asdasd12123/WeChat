@@ -93,6 +93,7 @@ class business(basebusiness):
             return False
 
         c=checkinNode(key)
+
         for index in self.list:
             if index.key['TeacherID']==key['TeacherID']:
                 if self.time_check(index):
@@ -130,7 +131,6 @@ class business(basebusiness):
 
 
     def randomcheckin(self,key):
-
         for list in self.list:
             if list.key['ClassID'] == key['ClassID']:
                 for info in list.random_info:
@@ -142,7 +142,15 @@ class business(basebusiness):
 
     def mancheckin(self,key):
 
-        return checkinNode(key).manCheckin()
+        if self.can_statistics(key):
+            return checkinNode(key).manCheckin()
+
+    def can_statistics(self,key):
+        for list in self.list:
+            if list.key['TeacherID'] == key['TeacherID']:
+                print '当前您开启了对班级%s的课程，无法开启统计功能!' %(list.key['ClassID'])
+                return False
+        return True
 
 
 if __name__=='__main__':

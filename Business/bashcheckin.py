@@ -31,14 +31,22 @@ class bashcheckin(object):
                 if localtime>=Time[0] -self.time and localtime <= Time[1]-self.time:
                     self.end_time = Time[1]
                     self.start_time = localtime
+                    self.status=True
                     return True
                 elif localtime < Time[0]-self.time and localtime>=Time[0]-600:
                     print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
                 elif localtime < Time[1]-60  and localtime>Time[1]-self.time:
                     print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
                 return False
-        print '当前不是有效时间无法开启考勤!'
-        return False
+        status=raw_input( '当前不是开启考勤的有效时间,您是否开启窗口? yes or other ')
+        if status=='yes':
+            self.status=True
+            self.start_time=localtime
+            self.end_time=localtime+6000
+            return True
+        else:
+            print '当前不是有效时间,开启考勤失败!'
+            return False
 
 
     def Initialization(self, stu_info_list, type):

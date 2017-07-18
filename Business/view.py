@@ -1,6 +1,5 @@
 #coding=utf-8
 from DataProcess.DataProcess import DataProcess
-import re
 from Auxiliaryfunction import  Auxiliaryfunction
 import time
 
@@ -9,8 +8,6 @@ class view(Auxiliaryfunction):
     def __init__(self):
         self.sum_filename=None
         self.detail_filename=None
-
-
 
     def historical_statistics(self):  # 这里的键值包括TeacherID和老师要统计的班级和次序号
         stuinfo = DataProcess(target=DataProcess.QueryObjectInfo, args=(self.detail_filename,)).run()
@@ -275,11 +272,3 @@ class view(Auxiliaryfunction):
             return DataProcess(target=DataProcess.update,args=(self.sum_filename,'w',sum)).run()
 
         return True
-
-
-
-if __name__=='__main__':
-    c=view({'TeacherID':'2004633','ClassID':"软件工程1401",'SeqNum':'3'})
-
-    c.creat_sum()
-    c.view_time()
