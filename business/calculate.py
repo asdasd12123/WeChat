@@ -7,62 +7,63 @@ from dataoperation.manage import DataManage
 
 class AuxiliaryFunction(object):
 
-    def __calculation(self, absence):  # 子计算
-        absencenum = 0  # 缺勤人数
-        subnum = 0  # 请假提交人数
-        appnum = 0  # 请假批准人数
-        latenum = 0  # 迟到人数
-        earilynum = 0  # 早退人数
+    @staticmethod
+    def __calculation(absence):  # 子计算
+        absence_num = 0  # 缺勤人数
+        sub_num = 0  # 请假提交人数
+        app_num = 0  # 请假批准人数
+        late_num = 0  # 迟到人数
+        early_num = 0  # 早退人数
         normal = 0  # 正常人数
-        allinfo = {}
+        all_info = {}
         length = len(absence.keys())
         for (key, item) in absence.items():
             if item['Type'] == 'Late':
-                latenum = latenum + 1
+                late_num = late_num + 1
             elif item['Type'] == 'Submitted':
-                subnum = subnum + 1
+                sub_num = sub_num + 1
             elif item['Type'] == 'Absence':
-                absencenum = absencenum + 1
+                absence_num = absence_num + 1
             elif item['Type'] == 'normal':
                 normal = normal + 1
             elif item['Type'] == 'leaveEarlier':
-                earilynum = earilynum + 1
+                early_num = early_num + 1
             elif item['Type'] == 'approve':
-                appnum = appnum + 1
+                app_num = app_num + 1
 
             if item['Type'] != 'normal':
-                allinfo[key] = item
+                all_info[key] = item
 
         grade = 1.0 * normal / length * 100
-        info = {}
-        info['checkin'] = allinfo
-        info['latenum'] = latenum
-        info['approve'] = appnum
-        info['subnum'] = subnum
+        info = dict()
+        info['checkin'] = all_info
+        info['latenum'] = late_num
+        info['approve'] = app_num
+        info['subnum'] = sub_num
         info['length'] = length
-        info['leaveEarlier'] = earilynum
+        info['leaveEarlier'] = early_num
         info['normal'] = normal
-        info['absence'] = absencenum
+        info['absence'] = absence_num
         info['grade'] = grade
         return info
 
-    def statistics_calculation(self, stuinfolist):  # 给定一定数量的学生考勤信息计算该信息内所有学生的考勤结果
+    def statistics_calculation(self, stu_info_list):  # 给定一定数量的学生考勤信息计算该信息内所有学生的考勤结果
         absence = {}
         keys = {'null': 0, 'normal': 1, 'Late': 2, 'leaveEarlier': 3, 'Absence': 4, 'Submitted': 5, 'approve': 6}
 
-        for stu in stuinfolist:
+        for stu in stu_info_list:
             info = {}
-            if absence.has_key(stu['StuID']):
+            if absence. has_key(stu['StuID']):
                 continue
             else:
                 absence[stu['StuID']] = info
             info['Type'] = 'null'
-            info['StuName']=DataManage(DataManage.target_info,
-                                       args=('../InData/studentInfo.csv', {'StuID': stu['StuID']})).run()[0]['StuName']
+            info['StuName'] = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
+                                                                       {'StuID': stu['StuID']})).run()[0]['StuName']
 
-        for stu in stuinfolist:
+        for stu in stu_info_list:
             info = absence[stu['StuID']]
-            if keys[info['Type']]< keys[stu['checkinResult']]:
+            if keys[info['Type']] < keys[stu['checkinResult']]:
                 if info['Type'] == 'null':
                     info['Type'] = stu['checkinResult']
                 elif info['Type'] == 'normal' or info['Type'] == 'Late':
@@ -85,19 +86,21 @@ class AuxiliaryFunction(object):
 
         return self.__calculation(absence)
 
-    def dis_play(self, stuinfolist):  # 自带格式化并显示考勤结果到终端
-        checkinfo = self.statistics_calculation(stuinfolist)
-        if not checkinfo:
+    def dis_play(self, stu_info_list):  # 自带格式化并显示考勤结果到终端
+        check_info = self.statistics_calculation(stu_info_list)
+        if not check_info:
             print '数据不合法无法进行计算!'
             return False
 
         print '最近一节课的出勤状况如下 :'
         print '考勤总人数:%d 正常考勤人数:%d 缺勤人数:%d 请假人数:%d 迟到人数:%d 早退人数:%d 出勤率%.2f %% ' % (
-        checkinfo['length'], checkinfo['normal'], checkinfo['absence'], checkinfo['subnum']+checkinfo['approve'],
-        checkinfo['latenum'], checkinfo['leaveEarlier'], checkinfo['grade'])
-        if int(checkinfo['grade']) != 100:
+            check_info['length'], check_info['normal'], check_info['absence'],
+            check_info['subnum'] + check_info['approve'], check_info['latenum'], check_info['leaveEarlier'],
+            check_info['grade'])
+
+        if int(check_info['grade']) != 100:
             print '未出勤学生详细信息如下:'
-            for (key, item) in checkinfo['checkin'].items():
+            for (key, item) in check_info['checkin'].items():
                 print '学号 :%-15s 姓名 :%-15s 考勤状况 :%-12s ' % (key, item['StuName'], item['Type'])
         return True
 

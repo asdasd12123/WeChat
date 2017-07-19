@@ -5,7 +5,8 @@ from business.businessapi import Business
 
 class SystemRun(object):
 
-    def stu_form(self, key, line):
+    @staticmethod
+    def stu_form(key, line):
         while True:
             print "*************欢迎进入学生模拟控制菜单******************"
             print "*****************1.在线请假*************************"
@@ -14,24 +15,24 @@ class SystemRun(object):
             print "*****************4.查看当前考勤结果*******************"
             print "*****************5.查看历史考勤结果*******************"
             print "*****************6.回到上级目录**********************"
-            line.tips(key,'info')
-            opnum = raw_input("请输入您想要的操作：")
-            if opnum == '1':
+            line.tips(key, 'info')
+            op_num = raw_input("请输入您想要的操作：")
+            if op_num == '1':
                 if line.tips(key) < 1:
                     print '当前没有与您有关的自动考勤窗口被发起,无法请假!'
                     continue
                 key['ProofPath'] = raw_input("请输入您的请假证据：（学生）")
                 line.insert_leave(key)
 
-            elif opnum == '2':  # 在线考勤
+            elif op_num == '2':  # 在线考勤
                 if line.tips(key) < 1:
                     print '当前没有与您有关的自动考勤窗口被发起!'
                     continue
                 key['ProofPath'] = raw_input("请输入您的考勤证据路径：（学生）")
-                key['Type']='auto'
+                key['Type'] = 'auto'
                 line.auto_check_in(key)
 
-            elif opnum == '3':
+            elif op_num == '3':
                 if line.tips(key) != 3:
                     print '当前没有与您有关的随机考勤窗口被发起!'
                     continue
@@ -39,19 +40,20 @@ class SystemRun(object):
                 key['Type'] = 'random'
                 line.random_check_in(key)
 
-            elif opnum == '4':
+            elif op_num == '4':
                 line.stufunct.real_view(key)
 
-            elif opnum == '5':
+            elif op_num == '5':
                 line.stufunct.history(key)
 
-            elif opnum == '6':  # 回到主菜单
+            elif op_num == '6':  # 回到主菜单
                 break
 
             else:
                 print "输入有误 没有对应输入的选项！"
 
-    def att_output(self, key, line):
+    @staticmethod
+    def att_output(key, line):
 
         while True:
             print "*************欢迎进入考勤成绩统计菜单*********************"
@@ -60,20 +62,20 @@ class SystemRun(object):
             print "*****************3.显示用户总考勤概要信息****************"
             print "*****************4.显示用户总考勤详细信息****************"
             print "*****************5.回到上级目录************************"
-            opnum = raw_input("请输入您想要的操作：")
-            if opnum == '1':
+            op_num = raw_input("请输入您想要的操作：")
+            if op_num == '1':
                 key['CourseName'] = raw_input("请输入课程名称")
                 num = raw_input('请输入查看课程的次序号')
                 line.view.get_count_rate(key,num)
-            elif opnum == '2':  # 在线考勤
+            elif op_num == '2':  # 在线考勤
                 key['CourseName'] = raw_input("请输入课程名称")
                 line.view.get_all_rate(key)
 
-            elif opnum == '3':
+            elif op_num == '3':
                 line.view.dis_summary_sum(key)
-            elif opnum == '4':
+            elif op_num == '4':
                 line.view.dis_all_sum(key)
-            elif opnum == '5':  # 回到主菜单
+            elif op_num == '5':  # 回到主菜单
                 break
             else:
                 print "输入有误 没有对应输入的选项！"
@@ -91,68 +93,69 @@ class SystemRun(object):
             print "*****************8.学生信息维护***********************"
             print "*****************9.考勤信息维护***********************"
             print "****************10.回到上级目录***********************"
-            opnum = raw_input("请输入您想要的操作：")
-            if opnum == '1':
-                courseID = raw_input('请输入您要考勤的班级号!')
-                key['ClassID'] = courseID
+            op_num = raw_input("请输入您想要的操作：")
+            if op_num == '1':
+                course_id = raw_input('请输入您要考勤的班级号!')
+                key['ClassID'] = course_id
                 if not line.start_check_in(key):
                     print '开启考勤失败!'
 
-            elif opnum == '2':  # 在线考勤
+            elif op_num == '2':  # 在线考勤
                 line.start_random(key)
 
-            elif opnum == '3':
-                courseID = raw_input('请输入您要考勤的课程号!')
-                key['ClassID'] = courseID
+            elif op_num == '3':
+                course_id = raw_input('请输入您要考勤的课程号!')
+                key['ClassID'] = course_id
                 if not line.man_check_in(key):
                     print '开启考勤失败!'
 
-            elif opnum == '4':
+            elif op_num == '4':
                 line.maintain.rultSet(key)
 
-            elif opnum == '5':
+            elif op_num == '5':
                 line.view.view_time(key)
 
-            elif opnum == '6':  # 回到主菜单
+            elif op_num == '6':  # 回到主菜单
                 if line.can_statistics(key):
                     key['ClassID'] = raw_input('请输入需要计算的班级')
                     key['SeqNum'] = raw_input('请输入考勤次序号')
                     line.view.creat_sum(key)
 
-            elif opnum == '7':
+            elif op_num == '7':
                 if line.can_statistics(key):
                     self.att_output(key, line)
 
-            elif opnum == '8':
+            elif op_num == '8':
                 line.maintain.main_tain_stu(key)
 
-            elif opnum == '9':  # 回到主菜单
-                key['ClassID']=raw_input('请输入需要维护的班级')
+            elif op_num == '9':  # 回到主菜单
+                key['ClassID'] = raw_input('请输入需要维护的班级')
                 line.maintain.main_tain_info(key)
 
-            elif opnum == '10':
+            elif op_num == '10':
                 break
             else:
                 print "输入有误 没有对应输入的选项！"
 
-    def admin_form(self, line):
+    @staticmethod
+    def admin_form(line):
         while True:
             print "*************欢迎进入管理员模拟控制菜单*****************"
             print "******************1.教师信息导入**********************"
             print "******************2.学生信息导入**********************"
             print "******************3.课程信息导入**********************"
             print "******************4.返回上一层************************"
-            opnum = raw_input("请输入您想要的操作：")
+            op_num = raw_input("请输入您想要的操作：")
 
-            if opnum in ['1', '2', '3', '4']:
+            if op_num in ['1', '2', '3', '4']:
                 outfile = raw_input('请输入导入外部文件路径 :')
-                if opnum == '1':
+                if op_num == '1':
                     if line.import_file.import_teacher(outfile):
                         print '导入教师信息成功!'
-                elif opnum == '2':
+                elif op_num == '2':
                     if line.import_file.import_stu(outfile):
                         print '导入学生信息成功!'
-                elif opnum == '3':
+                elif op_num == '3':
                     if line.import_file.import_class(outfile):
                         print '导入课程信息成功!'
                 else:
@@ -168,27 +171,27 @@ class SystemRun(object):
             print "*****************2.学生登录*************************"
             print "*****************3.管理员登录***********************"
             print "*****************4.退出程序*************************"
-            opnum = raw_input("请输入您想要的操作：")
-            if opnum == '1':  # 教师开启考勤
-                teacherWechatID = raw_input("请输入您的微信号：（教师）")
-                key = business.teachertest(teacherWechatID)
+            op_num = raw_input("请输入您想要的操作：")
+            if op_num == '1':  # 教师开启考勤
+                teacher_we_chat_id = raw_input("请输入您的微信号：（教师）")
+                key = business.teacher_test(teacher_we_chat_id)
                 if key:
                     self.teacher_form(key, business)
                 else:
                     continue
 
-            elif opnum == '2':  # 学生正常考勤操作
-                stuWechatID = raw_input("请输入您的微信号：（学生）")
-                key = business.stu_info_test(stuWechatID)
+            elif op_num == '2':  # 学生正常考勤操作
+                stu_we_chat_id = raw_input("请输入您的微信号：（学生）")
+                key = business.stu_info_test(stu_we_chat_id)
                 if key:
                     self.stu_form(key, business)
                 else:
                     continue
 
-            elif opnum == '3':  #
+            elif op_num == '3':  #
                 self.admin_form(business)
 
-            elif opnum == '4':  # 退出系统
+            elif op_num == '4':  # 退出系统
                 sys.exit(0)
             else:
                 print "输入有误 没有对应输入的选项！"

@@ -43,9 +43,9 @@ class Query(object):
 
         #   查找符合对应函数的信息的文件名
         file_list = []
-        for fpathe, dirs, fs in os.walk('..'):
+        for f_path, dirs, fs in os.walk('..'):
             for f in fs:
-                file_list.append(os.path.join(fpathe, f))
+                file_list.append(os.path.join(f_path, f))
         data = []
         for line in file_list:
             if operation and operation(line):

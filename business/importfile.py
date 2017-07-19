@@ -3,23 +3,19 @@ import re
 from dataoperation.manage import DataManage
 from log import Log
 
+
 class ImportFile(object):
 
-    teacher_info = {"TeacherID":'^[\d]{7}$',
-                            "TeacherName":r'^[\x80-\xff]{6,18}$',
-                            "WeChatID":'^[a-zA-Z0-9_]+$'}
+    teacher_info = {"TeacherID": '^[\d]{7}$', "TeacherName": r'^[\x80-\xff]{6,18}$', "WeChatID": '^[a-zA-Z0-9_]+$'}
 
-    course_info={"CourseID":'^[\d]{8}$',
-                            "CourseName":'^[\x80-\xff]{6,18}$',
-                            "TeacherID":'^[\d]{7}$',
-                            "ClassName":'[\x80-\xff]+\d{4}$'}
+    course_info={"CourseID": '^[\d]{8}$', "CourseName": '^[\x80-\xff]{6,18}$', "TeacherID": '^[\d]{7}$',
+                 "ClassName": '[\x80-\xff]+\d{4}$'}
 
-    student_info={"StuID":'^[\d]{12}$',
-                            "StuName":'^[\x80-\xff]{6,18}$',
-                            "WeChatID":'^[a-zA-Z0-9_]+$',
-                            "ClassID":'[\x80-\xff]+\d{4}$'}
+    student_info={"StuID": '^[\d]{12}$', "StuName": '^[\x80-\xff]{6,18}$', "WeChatID": '^[a-zA-Z0-9_]+$',
+                  "ClassID": '[\x80-\xff]+\d{4}$'}
 
-    def stu_operation(self, out_file, path):
+    @staticmethod
+    def stu_operation(out_file, path):
         data = DataManage(DataManage.target_info, args=(out_file,)).run()
         if not data:
             return None
@@ -31,7 +27,8 @@ class ImportFile(object):
             return False
         return data
 
-    def course_operation(self, out_file, path=''):
+    @staticmethod
+    def course_operation(*out_file):
         course_data = DataManage(DataManage.target_info, args=(out_file,)).run()
 
         if not course_data:
@@ -55,7 +52,7 @@ class ImportFile(object):
                     class_name = major_info[0]
 
                     for i in range(begin, end + 1):
-                        dict_line = {}
+                        dict_line = dict()
                         dict_line['CourseID'] = line['CourseID']
                         dict_line['CourseName'] = line['CourseName']
                         dict_line['TeacherID'] = line['TeacherID']
@@ -66,21 +63,22 @@ class ImportFile(object):
             return False
         return new_data
 
-    def import_file(self, source_file, out_file, format={},Primary_key=[],operation=None,Path=''):
+    @staticmethod
+    def import_file(source_file, out_file, _format=None, primary_key=None, operation=None, path=''):
         if operation:
-            data = operation(out_file,Path)
+            data = operation(out_file, path)
             if not data:
                 print '文件不存在或与标准形式不符,请检查您的输入!'
                 return False
         else:
             data = DataManage(DataManage.target_info, args=(out_file,)).run()
-        error = DataManage(DataManage.format_check, args=(data, format)).run()
+        error = DataManage(DataManage.format_check, args=(data, _format)).run()
         if DataManage(DataManage.get_result, args=(error,)).run():
             for (key, item) in error.items():
                 print key, item
             Log().add(error)
             return False
-        for key in Primary_key:
+        for key in primary_key:
             DataManage(DataManage.update, args=(source_file, 'w', data, key)).run()
             data = DataManage(DataManage.target_info, args=(source_file,)).run()
         return True
@@ -97,12 +95,3 @@ class ImportFile(object):
     def import_class(self, out):
         return self.import_file('../InData/courseInfo.csv', out,
                                 self.course_info, [['CourseID', 'ClassName']], self.course_operation)
-
-
-if __name__=='__main__':
-    #Update.creat_file('course.csv',Import_file.CourseInfo)
-    #data=Query.QueryObjectInfo('../Indata/teacherInfo.csv')
-    #print data
-    #print Query.QueryObjectInfo('course.csv')
-    #Import_file().import_stu('../InData/studentInfo.csv')
-    ImportFile().import_teacher('../InData/1.csv')

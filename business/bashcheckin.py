@@ -14,31 +14,36 @@ class BashCheckIn(object):
         self.counter = {'auto': {}, 'random': {}}
         self.status = False
         self.random_info = []
-        self.time = int(Maintain().read_rule(key)['bufferTime'])*60
+        self.time = int(Maintain().read_rule(key)['bufferTime']) * 60
         self.start_time = None
         self.start = datetime.datetime.now()
         self.end_time = None
         self.key = key
-        self.filename=None
+        self.filename = None
         cf = ConfigParser.ConfigParser()
         cf.read('../InData/settings.ini')
         info = map((lambda x: re.split('-|:', x[1])), cf.items('sectime'))
-        self.Timeinfo = map((lambda x: [int(x[0]) * 3600 + int(x[1]) * 60, int(x[2]) * 3600 + int(x[3]) * 60]), info)
+        self.Time_info = map((lambda x: [int(x[0]) * 3600 + int(x[1]) * 60, int(x[2]) * 3600 + int(x[3]) * 60]), info)
 
     def get_time(self):
         localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
-        for Time in self.Timeinfo:
-            if localtime >= Time[0] -self.time and localtime <= Time[1]-self.time:
-                self.end_time = Time[1]
-                self.start_time = localtime
-                self.status = True
-                return True
-            elif localtime < Time[0]-self.time and localtime >= Time[0]-600:
-                print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
-                return False
-            elif localtime < Time[1]-60  and localtime > Time[1]-self.time:
-                print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
-                return False
+        for Time in self.Time_info:
+            if localtime >= Time[0] - self.time:
+                if localtime <= Time[1] - self.time:
+                    self.end_time = Time[1]
+                    self.start_time = localtime
+                    self.status = True
+                    return True
+            elif localtime < Time[0] - self.time:
+                if localtime >= Time[0] - 600:
+                    print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
+                    return False
+            elif localtime < Time[1] - 60:
+                if localtime > Time[1] - self.time:
+                    print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,' \
+                          '你可设置考勤缓冲调整此时间!' % (localtime - Time[1] + self.time)
+                    return False
+
         status = raw_input(" 当前不是开启考勤的有效时间,您是否开启窗口? yes or other ")
         if status == 'yes':
             self.status = True
@@ -64,37 +69,38 @@ class BashCheckIn(object):
             data['IsSucc'] = 'False'
             if _type == 'man':
                 sel=raw_input('当前学生学号:'+data['StuID']+' 请输入您的选项!')
-                keys = {'1': 'normal', '2': 'Late','3': 'leaveEarlier', '4': 'Absence', '5': 'approve'}
+                keys = {'1': 'normal', '2': 'Late', '3': 'leaveEarlier', '4': 'Absence', '5': 'approve'}
                 if sel in list('12345'):
                     data['checkinResult'] = keys[sel]
                 else:
                     print '您输入了非法选项默认该学生为缺勤!'
                     data['checkinResult'] = keys['4']
-                print '学号为 : %s 的考勤状态设定完毕 为 :%s' %(data['StuID'],data['checkinResult'])
+                print '学号为 : %s 的考勤状态设定完毕 为 :%s' % (data['StuID'], data['checkinResult'])
             else:
                 data['checkinResult'] = 'Absence'
             info.append(data)
         return info
 
     def get_seq_num(self):
-        seqinfo = DataManage(DataManage.target_info, args=('../InData/seq.csv',
-                    {'TeacherID': self.key['TeacherID'], 'ClassID': self.key['ClassID']})).run()
-        if not seqinfo:
+        seq_info = DataManage(DataManage.target_info, args=('../InData/seq.csv',
+                                                            {'TeacherID': self.key['TeacherID'],
+                                                             'ClassID': self.key['ClassID']})).run()
+        if not seq_info:
             return '1'
-        return str(int(seqinfo[-1]['SeqID'])+1)
+        return str(int(seq_info[-1]['SeqID'])+1)
 
-    def get_seqinfo(self):
-        seqinfo = {'TeacherID': self.key['TeacherID'], 'ClassID': self.key['ClassID']}
-        seqnum = self.get_seq_num()
-        self.filename = '../InData/'+self.key['TeacherID'] + '_' + self.key['ClassID'] + '_' + seqnum + '_Detail.csv'
-        seqinfo['StartTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        seqinfo['SeqID'] = self.get_seq_num()
-        return seqinfo
+    def get_seq_info(self):
+        seq_info = {'TeacherID': self.key['TeacherID'], 'ClassID': self.key['ClassID']}
+        seq_num = self.get_seq_num()
+        self.filename = '../InData/'+self.key['TeacherID'] + '_' + self.key['ClassID'] + '_' + seq_num + '_Detail.csv'
+        seq_info['StartTime'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        seq_info['SeqID'] = self.get_seq_num()
+        return seq_info
 
     def write_seq(self):
         if not DataManage(DataManage.target_key, args=('../InData/seq.csv',)).run():
             print 'The system creates the seq.csv file automatically！'
-        return DataManage(DataManage.update, args=('../InData/seq.csv', 'a', [self.get_seqinfo()])).run()
+        return DataManage(DataManage.update, args=('../InData/seq.csv', 'a', [self.get_seq_info()])).run()
 
     def random_stu_list(self):
 
@@ -103,7 +109,7 @@ class BashCheckIn(object):
             print '当前自动考勤的仍然存在缓冲时间无法开启随机窗口,您可修改缓冲时间改变此设置!'
             return False
 
-        stulist = []
+        stu_list = []
         student_list = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
                                                                 {'ClassID': self.key['ClassID']})).run()
         while True:
@@ -122,11 +128,11 @@ class BashCheckIn(object):
                 print '抽点完成您此时共抽点了%-3d名学生!' % ( num,)
                 break
 
-        while len(stulist) != num:
-            index=random.randint(0,len(student_list)-1)
-            if student_list[index] not in stulist:
-                stulist.append(student_list[index])
-        return stulist
+        while len(stu_list) != num:
+            index = random.randint(0, len(student_list)-1)
+            if student_list[index] not in stu_list:
+                stu_list.append(student_list[index])
+        return stu_list
 
     def auto_cal(self, stu_info):
         if DataManage(DataManage.target_info, args=(self.filename, {'StuID': stu_info['StuID'],
@@ -161,8 +167,7 @@ class BashCheckIn(object):
         else:
             print '身份验证失败！ 您还有 %d 次机会 ' % (self.counter['auto'][stu_info['StuID']])
         data['checkTime'] = str(datetime.datetime.now())[:-7]
-        return DataManage(DataManage.update, args=(self.filename, 'w', [data],
-                                                  ['StuID', 'checkinType'])).run()
+        return DataManage(DataManage.update, args=(self.filename, 'w', [data], ['StuID', 'checkinType'])).run()
 
     def random_cal(self, stu_info):
 

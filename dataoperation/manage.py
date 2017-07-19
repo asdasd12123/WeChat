@@ -1,5 +1,4 @@
 # coding=utf-8
-
 from query import Query
 from update import Update
 from check import Check
@@ -37,4 +36,4 @@ class DataManage(object):
 
 
 if __name__ == '__main__':
-    print DataManage(DataManage.target_info,args=('../InData/seq.csv',)).run()
+    print DataManage(DataManage.target_info, args=('../InData/seq.csv',)).run()

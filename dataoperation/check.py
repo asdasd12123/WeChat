@@ -1,11 +1,11 @@
-#coding=utf-8
+# coding=utf-8
 import re
 
 
 class Check(object):
 
     @staticmethod
-    def format_check(data, format=None):
+    def format_check(data, _format=None):
         # 格式检查
 
         error = {}
@@ -14,56 +14,58 @@ class Check(object):
             error['Format error '] = 'The external data is empty and cannot be imported!'
             return error
         for line in data:
-            Check().re_linecheck(line, row, error, format)
+            Check().re_line_check(line, row, error, _format)
             row = row + 1
         return error
 
-    def get_primary_item(self, keys, line):
+    @staticmethod
+    def get_primary_item(keys, line):
         key = reduce((lambda x, y: str(x) + ','+str(y)),
                      [line[key] for key in keys if line. has_key(key)], '')
         return key if key else None
 
     @staticmethod
-    def del_repeat(outdata, indata=[], keys=[], _type='w'):
+    def del_repeat(out_data, in_data=None, keys=None, _type='w'):
         #   可以自我去重 也可以指定外部数据后覆盖掉内部的数据或追加或删除到内部数据 可以指定主键充当判断准则
-        if Check.get_result(Check.format_check(outdata)):
+        if Check.get_result(Check.format_check(out_data)):
             return []
         if not keys:
-            keys = indata[0].keys() if indata else outdata[0].keys()
+            keys = in_data[0].keys() if in_data else out_data[0].keys()
 
-        for line in outdata:
+        for line in out_data:
             key1 = Check().get_primary_item(keys, line)
             record = {}
-            for index in indata:
+            for index in in_data:
                 key2 = Check().get_primary_item(keys, index)
                 if not record. has_key(key2):
                     record[key2] = 1
                 if key1 and key1 == key2:
                     if _type != 'w' or not record[key2]:
-                        indata.remove(index)
+                        in_data.remove(index)
                     elif record[key2]:
-                        indata[indata.index(index)] = line
+                        in_data[in_data.index(index)] = line
                         record[key2] = 0
                 elif not key1 or not key2:
                     print 'The external data is different from the internal data key ！'
                     return []
             if _type == 'w' and record.get(key1, 1):
-                indata.append(line)
-        return indata
+                in_data.append(line)
+        return in_data
 
-    def re_linecheck(self, line, row, error, format={}):
+    @staticmethod
+    def re_line_check(line, row, error, _format=None):
         # 利用正则表达式对数据进行检查
         if not line or type(error) != dict:
             error['Format error row (%d) '] = 'The data is empty or the data structure is not a dictionary！'
             return True
 
-        if not format:
+        if not _format:
             for (key, item) in line.items():
                 if not item:
                     error['Error line row [' + str(row) + ']'] = 'Datakey '+key + ': value does not exist!'
             return Check.get_result(error)
 
-        for (key, item) in format.items():
+        for (key, item) in _format.items():
             if not line. has_key(key):
                 error['Error line row [' + str(row) + ']'] = 'Data ' + key + ' The key or value does not exist!'
             else:
@@ -84,19 +86,3 @@ class Check(object):
                 return True
         return False
 
-
-if __name__=='__main__':
-    read=[{1:2,2:3,3:5}   ,  {1:2,2:3,3:5} ]
-    error={}
-    #read4=Check.delrepeat(read,read2,[1,2,3])
-    #print read4,error
-    key = [1,3]
-    read2 = [{1: 2, 2: 3, 3: 5}]
-    read = [{1: 2, 2: 3, 3: 5}, {1: 2, 2: 3, 3: 1} ,{1:1,2:8,3:1}]
-    read4 = Check.delrepeat(read,read2,key)
-    print read4,error
-
-    read = {1: 4, 2: 5, 3: 6}
-
-    #print [read[key1] for key1 in key if read.has_key(key1)]
-    #print reduce((lambda x,y:str(x)+str(y)),[read[key1] for key1 in key if read.has_key(key1)])

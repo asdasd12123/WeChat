@@ -30,23 +30,23 @@ class CheckInNode(BashCheckIn):
         stu_list = self.init_data(self.random_info, 'random')
         return DataManage(DataManage.update, args=(self.filename, 'a', stu_list)).run()
 
-    def receive(self, stuinfo):
-        if stuinfo['Type'] == 'auto':
-            return self.auto_cal(stuinfo)
+    def receive(self, stu_info):
+        if stu_info['Type'] == 'auto':
+            return self.auto_cal(stu_info)
         else:
-            return self.random_cal(stuinfo)
+            return self.random_cal(stu_info)
 
     def man_check_in(self):  # 手动考勤
 
-        stuinfo = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
-                                                           {'ClassID': self.key['ClassID']})).run()
+        stu_info = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
+                                                            {'ClassID': self.key['ClassID']})).run()
 
-        if not stuinfo:
+        if not stu_info:
             print '当前班级不存在请重新输入!'
             return False
 
         self.write_seq()
         print '请按照以下选项输入状态 非法输入默认为缺勤!'
         print ' 1　正常　2　迟到　３　早退　４　缺勤 5　请假已批准'
-        stulist = self.init_data(stuinfo, 'man')
-        return DataManage(DataManage.update, args=(self.filename, 'w', stulist)).run()
+        stu_list = self.init_data(stu_info, 'man')
+        return DataManage(DataManage.update, args=(self.filename, 'w', stu_list)).run()

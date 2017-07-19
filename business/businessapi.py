@@ -23,24 +23,26 @@ class Business(BaseBusiness):
 
         self.import_file = ImportFile()
 
-    def stu_info_test(self, key):
+    @staticmethod
+    def stu_info_test(key):
 
-        stuinfo = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv', {'WeChatID':key})).run()
+        stu_info = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv', {'WeChatID': key})).run()
 
-        if not stuinfo:
+        if not stu_info:
             print '学生微信不存在请检查您的输入信息!'
             return False
 
-        return stuinfo[0]
+        return stu_info[0]
 
-    def teachertest(self,key):  # 输入微信号和班级　进行验证
-        teacherinfo = DataManage(DataManage.target_info, args=('../InData/teacherInfo.csv', {'WeChatID': key})).run()
+    @staticmethod
+    def teacher_test(key):  # 输入微信号和班级　进行验证
+        teacher_info = DataManage(DataManage.target_info, args=('../InData/teacherInfo.csv', {'WeChatID': key})).run()
 
-        if not teacherinfo:
+        if not teacher_info:
             print '教师微信不存在请检查您的输入信息!'
             return False
 
-        return teacherinfo[0]
+        return teacher_info[0]
 
     def insert_leave(self, key):
         key = copy.deepcopy(key)
@@ -57,7 +59,7 @@ class Business(BaseBusiness):
         print '当前没有与您有关的自动考勤窗口'
         return False
 
-    def tips(self, key,info=''):
+    def tips(self, key, info=''):
         count = 0
         for line in self.list:
             if line.key['ClassID'] == key['ClassID']:  # 1
@@ -81,19 +83,20 @@ class Business(BaseBusiness):
         print '当前您没有开启一个自动考勤窗口无法开启随机考勤!'
         return False
 
-    def __time_check(self, checknode):  # 判断是否下课
+    @staticmethod
+    def __time_check(check_node):  # 判断是否下课
         localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
-        if localtime > checknode.end_time:
+        if localtime > check_node.end_time:
             return False
         return True
 
     def start_check_in(self, key):  # 教师微信号　学生班级号
 
         key = copy.deepcopy(key)
-        teacherinfo = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
-                                                               {'ClassName': key['ClassID']})).run()
+        teacher_info = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
+                                                                {'ClassName': key['ClassID']})).run()
 
-        if not teacherinfo:
+        if not teacher_info:
             print '班级不存在请检查您的输入信息!'
             return False
 
@@ -102,7 +105,7 @@ class Business(BaseBusiness):
         for index in self.list:
             if index.key['TeacherID'] == key['TeacherID']:
                 if self.__time_check(index):
-                    print '您已经对班级:%s开启自动考勤无法再次开启' %(index.key['ClassID'])
+                    print '您已经对班级:%s开启自动考勤无法再次开启' % (index.key['ClassID'])
                     return False
                 else:
                     if self.list.index(index) == 0:
@@ -113,7 +116,7 @@ class Business(BaseBusiness):
         for index in self.list:
             if index.key['ClassID'] == key['ClassID']:
                 if self.__time_check(index):
-                    print '班级:%s正在被老师:%s考勤,无法对此班级发起考勤!' %(index.key['ClassID'],index.key['TeacherID'])
+                    print '班级:%s正在被老师:%s考勤,无法对此班级发起考勤!' % (index.key['ClassID'], index.key['TeacherID'])
                     return False
                 else:
                     if self.list.index(index) == 0:
@@ -149,7 +152,7 @@ class Business(BaseBusiness):
     def can_statistics(self,key):
         for line in self.list:
             if line.key['TeacherID'] == key['TeacherID']:
-                print '当前您开启了对班级%s的课程，无法开启统计功能!' %(line.key['ClassID'], )
+                print '当前您开启了对班级%s的课程，无法开启统计功能!' % (line.key['ClassID'], )
                 return False
         return True
 
