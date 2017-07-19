@@ -17,9 +17,9 @@ class Maintain(object):
             return False
         return True
 
-    def main_tain_stu(self,key):  # 手动维护学生信息
+    def main_tain_stu(self, key):  # 手动维护学生信息
         classinfo = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
-                                                             {'TeacherID':key['TeacherID']})).run()
+                                                             {'TeacherID': key['TeacherID']})).run()
         classlist = set()
         for line in classinfo:
             classlist.add(line['ClassName'])
@@ -30,7 +30,7 @@ class Maintain(object):
             if stu['ClassID'] not in classlist:
                 stuinfo.remove(stu)
 
-        stuID = raw_input('请输入您需要修改学生的学号!')
+        stuID = raw_input('请输入学生的学号!')
         info = {}
         for stu in stuinfo:
             if stu['StuID'] == stuID:
@@ -95,7 +95,7 @@ class Maintain(object):
 
         return data
 
-    def main_tain_info(self, key): # 手动维护考勤信息
+    def main_tain_info(self, key):  # 手动维护考勤信息
         seqnum = raw_input('请输入您需要修改哪一次的记录！')
         filename = '../InData/'+key['TeacherID']+'_'+key['ClassID']+'_Sum.csv'
         stuinfo = DataManage(DataManage.target_info, args=(filename,)).run()

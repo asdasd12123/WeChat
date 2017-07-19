@@ -17,10 +17,11 @@ class SystemRun(object):
             line.tips(key,'info')
             opnum = raw_input("请输入您想要的操作：")
             if opnum == '1':
+                if line.tips(key) < 1:
+                    print '当前没有与您有关的自动考勤窗口被发起,无法请假!'
+                    continue
                 key['ProofPath'] = raw_input("请输入您的请假证据：（学生）")
-                key['SeqNum'] = raw_input('请输入需要插入假条的考勤次序号')
-                key['TeacherID'] = raw_input('请输入老师的教工号')
-                line.stufunct.insert_leave_record(key)
+                line.insert_leave(key)
 
             elif opnum == '2':  # 在线考勤
                 if line.tips(key) < 1:

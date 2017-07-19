@@ -1,7 +1,7 @@
 # coding=utf-8
 import re
 from dataoperation.manage import DataManage
-
+from log import Log
 
 class ImportFile(object):
 
@@ -66,9 +66,9 @@ class ImportFile(object):
             return False
         return new_data
 
-    def import_file(self,source_file,out_file, format={},Primary_key=[],operation=None,Path=''):
+    def import_file(self, source_file, out_file, format={},Primary_key=[],operation=None,Path=''):
         if operation:
-            data=operation(out_file,Path)
+            data = operation(out_file,Path)
             if not data:
                 print '文件不存在或与标准形式不符,请检查您的输入!'
                 return False
@@ -78,6 +78,7 @@ class ImportFile(object):
         if DataManage(DataManage.get_result, args=(error,)).run():
             for (key, item) in error.items():
                 print key, item
+            Log().add(error)
             return False
         for key in Primary_key:
             DataManage(DataManage.update, args=(source_file, 'w', data, key)).run()
@@ -104,4 +105,4 @@ if __name__=='__main__':
     #print data
     #print Query.QueryObjectInfo('course.csv')
     #Import_file().import_stu('../InData/studentInfo.csv')
-    Import_file().import_class('../InData/course.csv')
+    ImportFile().import_teacher('../InData/1.csv')

@@ -42,8 +42,15 @@ class Business(BaseBusiness):
 
         return teacherinfo[0]
 
-    def auto_check_in(self,key):
+    def insert_leave(self, key):
+        key = copy.deepcopy(key)
+        for line in self.list:
+            if line.key['ClassID'] == key['ClassID']:
+                key['TeacherID'] = line.key['TeacherID']
+                return self.stufunct.insert_leave_record(key)
+        return False
 
+    def auto_check_in(self, key):
         for line in self.list:
             if line.key['ClassID'] == key['ClassID']:
                 return line.receive(key)
@@ -80,7 +87,7 @@ class Business(BaseBusiness):
             return False
         return True
 
-    def start_check_in(self, key): #　教师微信号　学生班级号
+    def start_check_in(self, key):  # 教师微信号　学生班级号
 
         key = copy.deepcopy(key)
         teacherinfo = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
@@ -117,7 +124,7 @@ class Business(BaseBusiness):
         if not c.start_auto():
             return False
 
-        if self.list == []:
+        if not self.list:
             self.list.append(c)
             self.start_check_time()
         else:

@@ -10,6 +10,9 @@ class Check(object):
 
         error = {}
         row = 1
+        if not data:
+            error['Format error '] = 'The external data is empty and cannot be imported!'
+            return error
         for line in data:
             Check().re_linecheck(line, row, error, format)
             row = row + 1
@@ -50,9 +53,10 @@ class Check(object):
 
     def re_linecheck(self, line, row, error, format={}):
         # 利用正则表达式对数据进行检查
-
         if not line or type(error) != dict:
+            error['Format error row (%d) '] = 'The data is empty or the data structure is not a dictionary！'
             return True
+
         if not format:
             for (key, item) in line.items():
                 if not item:
@@ -60,10 +64,10 @@ class Check(object):
             return Check.get_result(error)
 
         for (key, item) in format.items():
-            if not line.has_key(key):
+            if not line. has_key(key):
                 error['Error line row [' + str(row) + ']'] = 'Data ' + key + ' The key or value does not exist!'
             else:
-                if re.findall(item, line[key]):
+                if line[key] and re.findall(item, line[key]):
                     pass
                 else:
                     error['Error line row ['+str(row)+']'] = 'The line information does not conform to the standard!'

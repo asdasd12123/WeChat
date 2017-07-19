@@ -21,10 +21,10 @@ class StudentFun(object):
             stuinfo = AuxiliaryFunction().statistics_calculation(stuinfo)
 
         name = DataManage(DataManage.target_info, args=('../InData/teacherInfo.csv',
-                                                       {'TeacherID': teacherid})).run()[0]['TeacherName']
+                                                        {'TeacherID': teacherid})).run()[0]['TeacherName']
 
         classname = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
-                                                            {'TeacherID': teacherid})).run()[0]['CourseName']
+                                                             {'TeacherID': teacherid})).run()[0]['CourseName']
 
         if num == 1:
             for (k, item) in stuinfo['checkin'].items():
@@ -94,25 +94,26 @@ class StudentFun(object):
         self.view(filename, key['StuID'], line['TeacherID'], 1)
 
     def insert_leave_record(self, key):  # 向历史记录添加请假 #学生请假休息包括 学号　提交类型　请假证明　提交时间
-        data = {}
 
-        def operation(filename):
-            filename = re.split('_', filename)
-            if key['SeqNum'] in filename and '../InData/'+key['TeacherID'] in filename and key['ClassID'] in filename\
-                    and 'Detail.csv' in filename:
-                return True
-            return False
+        seqinfo = DataManage(DataManage.target_info, args=('../InData/seq.csv',)).run()
 
-        filename=DataManage(DataManage.find_file, args=(operation,)).run()
-        if not filename:
+        count = 0
+        for seq in seqinfo:
+            if seq['TeacherID'] == key['TeacherID']:
+                if seq['ClassID'] == seq['ClassID']:
+                    count = seq['SeqID']
+
+        if not count:
             print '满足您输入信息的考勤细节表不存在!'
             return False
 
-        if DataManage(DataManage.target_info, args=(filename[0], {'StuID': key['StuID'], 'checkinType':'leave'})).run():
+        filename = '../InData/'+key['TeacherID']+'_'+key['ClassID']+'_'+count+'_Detail.csv'
 
+        if DataManage(DataManage.target_info, args=(filename, {'StuID': key['StuID'], 'checkinType': 'leave'})).run():
             print '您在该次考勤中已经申请过请假无法再次申请!'
             return False
 
+        data = {}
         data['StuID'] = key['StuID']
         data['checkTime'] = str(datetime.datetime.now())[:-7]
         data['ProofPath'] = key['ProofPath']
@@ -120,6 +121,6 @@ class StudentFun(object):
         data['IsSucc'] = 'False'
         data['checkinResult'] = 'Submitted'
         print '提交假条成功!'
-        return DataManage(DataManage.update, args=(filename[0], 'a', [data])).run()
+        return DataManage(DataManage.update, args=(filename, 'a', [data])).run()
 
 

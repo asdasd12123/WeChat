@@ -22,14 +22,15 @@ class View(AuxiliaryFunction):
         key = {'StuID':stuID['StuID'],'checkinType':'leave'}
         stuinfo = DataManage(DataManage.target_info, args=(self.detail_filename, key)).run()[0]
         print '学号：' + stuinfo['StuID'] + '   该学生的请假证明路径为 : ' + stuinfo['ProofPath']
+        print '请假时间为 :%s' % ( stuinfo['checkTime'])
         stuinfo['IsSucc'] = 'True'
         while True:
             num = raw_input('是否批准该学生的假条 ? yes or no \n')
             if num == 'yes':
-                stuinfo['checkinResult']  =  'approve'
+                stuinfo['checkinResult'] = 'approve'
                 break
             elif num == 'no':
-                stuinfo['checkinResult']  =  'Absence'
+                stuinfo['checkinResult'] = 'Absence'
                 break
             else:
                 print '请输入标准的选项!'
@@ -107,9 +108,9 @@ class View(AuxiliaryFunction):
             self.class_sum_info(key)
         return True
 
-    def dis_summary_sum(self, key): #计算
+    def dis_summary_sum(self, key):  # 计算
         courseinfo = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
-                                                                         {'TeacherID': key['TeacherID']})).run()
+                                                              {'TeacherID': key['TeacherID']})).run()
 
         if not courseinfo:
             print '您还没有属于您的课程信息,请联系管理员导入信息!'

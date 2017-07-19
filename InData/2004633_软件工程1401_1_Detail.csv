@@ -1,8 +1,9 @@
 StuID,IsSucc,checkTime,ProofPath,checkinType,checkinResult
-222222222222,True,2017-07-18 09:37:46,wfsf_137,auto,normal
+222222222222,False,null,null,auto,Absence
 201416920105,False,null,null,auto,Absence
 201416920106,False,null,null,auto,Absence
 201416920101,False,null,null,auto,Absence
 201416920102,False,null,null,auto,Absence
 111111111111,False,null,null,auto,Absence
-222222222222,True,2017-07-18 09:39:45,wasdasdsa,leave,approve
+201516920711,False,null,null,auto,Absence
+222222222222,True,2017-07-19 10:13:58,asdada,leave,approve

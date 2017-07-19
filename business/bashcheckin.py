@@ -28,16 +28,16 @@ class BashCheckIn(object):
     def get_time(self):
         localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
         for Time in self.Timeinfo:
-            if localtime >= Time[0] - self.time -300 and localtime <= Time[1] - self.time +300:
-                if localtime >= Time[0] -self.time and localtime <= Time[1]-self.time:
-                    self.end_time = Time[1]
-                    self.start_time = localtime
-                    self.status = True
-                    return True
-                elif localtime < Time[0]-self.time and localtime >= Time[0]-600:
-                    print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
-                elif localtime < Time[1]-60  and localtime > Time[1]-self.time:
-                    print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
+            if localtime >= Time[0] -self.time and localtime <= Time[1]-self.time:
+                self.end_time = Time[1]
+                self.start_time = localtime
+                self.status = True
+                return True
+            elif localtime < Time[0]-self.time and localtime >= Time[0]-600:
+                print '据可开始考勤的时间还有%d秒,你可设置考勤缓冲提前开始考勤!' % (Time[0] - self.time - localtime)
+                return False
+            elif localtime < Time[1]-60  and localtime > Time[1]-self.time:
+                print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
                 return False
         status = raw_input(" 当前不是开启考勤的有效时间,您是否开启窗口? yes or other ")
         if status == 'yes':
@@ -129,6 +129,10 @@ class BashCheckIn(object):
         return stulist
 
     def auto_cal(self, stu_info):
+        if DataManage(DataManage.target_info, args=(self.filename, {'StuID': stu_info['StuID'],
+                                                                    'checkinType': 'leave'})).run():
+            print '您在该次考勤中已经申请过请假无法进行考勤!'
+            return False
 
         if self.counter['auto'][stu_info['StuID']] == 0:
             print '您当前进行自动考勤次数已经用完无法考勤!'
@@ -157,21 +161,29 @@ class BashCheckIn(object):
         else:
             print '身份验证失败！ 您还有 %d 次机会 ' % (self.counter['auto'][stu_info['StuID']])
         data['checkTime'] = str(datetime.datetime.now())[:-7]
-        return DataManage(DataManage.update,args=(self.filename, 'w', [data],
+        return DataManage(DataManage.update, args=(self.filename, 'w', [data],
                                                   ['StuID', 'checkinType'])).run()
 
     def random_cal(self, stu_info):
 
+        if DataManage(DataManage.target_info, args=(self.filename, {'StuID': stu_info['StuID'],
+                                                                    'checkinType': 'leave'})).run():
+            print '您在该次考勤中已经申请过请假无法进行考勤!'
+            return False
+
         if self.counter['random'][stu_info['StuID']] == 0:
             print '您当前进行随机考勤次数已经用完无法考勤!'
             return False
-        data = DataManage(DataManage.target_info, args=(self.filename, {'checkinType': 'random', 'StuID': stu_info['StuID']})).run()
+
+        data = DataManage(DataManage.target_info, args=(self.filename,
+                                                        {'checkinType': 'random', 'StuID': stu_info['StuID']})).run()
 
         self.counter['random'][stu_info['StuID']] -= 1
 
         if data[-1]['IsSucc'] == 'True':
             print '您已经完成随机考勤无法再次考勤'
             return False
+
         DataManage(DataManage.update, args=(self.filename, 'dl', data, ['StuID', 'checkinType'])).run()
         data[-1]['ProofPath'] = stu_info['ProofPath']
         num = random.randint(0, 1)

@@ -9,11 +9,12 @@ class CheckInNode(BashCheckIn):
         if self.status:
             print ' 当前已经存在自动考勤窗口无法再次开启!'
             return False
+
         if not self.get_time():
             return False
 
         stu_list = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
-                                                           {'ClassID': self.key['ClassID']})).run()
+                                                            {'ClassID': self.key['ClassID']})).run()
         self.write_seq()
         stu_list = self.init_data(stu_list, 'auto')
         self.status = True
@@ -38,7 +39,7 @@ class CheckInNode(BashCheckIn):
     def man_check_in(self):  # 手动考勤
 
         stuinfo = DataManage(DataManage.target_info, args=('../InData/studentInfo.csv',
-                                                          {'ClassID': self.key['ClassID']})).run()
+                                                           {'ClassID': self.key['ClassID']})).run()
 
         if not stuinfo:
             print '当前班级不存在请重新输入!'
@@ -49,9 +50,3 @@ class CheckInNode(BashCheckIn):
         print ' 1　正常　2　迟到　３　早退　４　缺勤 5　请假已批准'
         stulist = self.init_data(stuinfo, 'man')
         return DataManage(DataManage.update, args=(self.filename, 'w', stulist)).run()
-
-
-
-
-
-
