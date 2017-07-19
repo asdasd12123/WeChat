@@ -84,6 +84,25 @@ class Business(BaseBusiness):
         return False
 
     @staticmethod
+    def dis_info(key):
+        info = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',)).run()
+        class_list = list()
+        for _class in info:
+            if _class['TeacherID'] == key['TeacherID']:
+                class_info = dict()
+                class_info['CourseName'] = _class['CourseName']
+                class_info['ClassName'] = _class['ClassName']
+                class_list.append(class_info)
+
+        if not class_list:
+            return False
+        else:
+            print '您的课头列表信息如下: '
+            for _class in class_list:
+                print '课程名 : %s 班级名: %s ' % (_class['CourseName'], _class['ClassName'])
+            return True
+
+    @staticmethod
     def __time_check(check_node):  # 判断是否下课
         localtime = time.localtime()[3] * 3600 + time.localtime()[4] * 60 + time.localtime()[5]
         if localtime > check_node.end_time:
@@ -91,13 +110,13 @@ class Business(BaseBusiness):
         return True
 
     def start_check_in(self, key):  # 教师微信号　学生班级号
-
         key = copy.deepcopy(key)
         teacher_info = DataManage(DataManage.target_info, args=('../InData/courseInfo.csv',
-                                                                {'ClassName': key['ClassID']})).run()
+                                                                {'TeacherID': key['TeacherID'],
+                                                                 'ClassName': key['ClassID']})).run()
 
         if not teacher_info:
-            print '班级不存在请检查您的输入信息!'
+            print '班级不存在或者该班级不在您的课头列表之中,请检查您的输入信息后重试!'
             return False
 
         c = CheckInNode(key)
