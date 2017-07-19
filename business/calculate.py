@@ -7,7 +7,7 @@ from dataoperation.manage import DataManage
 
 class AuxiliaryFunction(object):
 
-    def __calculation(self,absence): # 子计算
+    def __calculation(self, absence):  # 子计算
         absencenum = 0  # 缺勤人数
         subnum = 0  # 请假提交人数
         appnum = 0  # 请假批准人数
@@ -58,10 +58,10 @@ class AuxiliaryFunction(object):
                 absence[stu['StuID']] = info
             info['Type'] = 'null'
             info['StuName']=DataManage(DataManage.target_info,
-                                       args=('../InData/studentInfo.csv', {'StuID':stu['StuID']})).run()[0]['StuName']
+                                       args=('../InData/studentInfo.csv', {'StuID': stu['StuID']})).run()[0]['StuName']
 
         for stu in stuinfolist:
-            info=absence[stu['StuID']]
+            info = absence[stu['StuID']]
             if keys[info['Type']]< keys[stu['checkinResult']]:
                 if info['Type'] == 'null':
                     info['Type'] = stu['checkinResult']
@@ -79,7 +79,7 @@ class AuxiliaryFunction(object):
                     info['Type'] = stu['checkinResult']
             else:
                 if info['Type'] == 'Absence':
-                    if stu['checkinResult'] == 'normal' or  stu['checkinResult'] == 'Late':
+                    if stu['checkinResult'] == 'normal' or stu['checkinResult'] == 'Late':
                         info['Type'] = 'Late'
                 continue
 
@@ -93,8 +93,8 @@ class AuxiliaryFunction(object):
 
         print '最近一节课的出勤状况如下 :'
         print '考勤总人数:%d 正常考勤人数:%d 缺勤人数:%d 请假人数:%d 迟到人数:%d 早退人数:%d 出勤率%.2f %% ' % (
-        checkinfo['length'],checkinfo['normal'],checkinfo['absence'], checkinfo['subnum']+checkinfo['approve'],
-        checkinfo['latenum'],checkinfo['leaveEarlier'],checkinfo['grade'])
+        checkinfo['length'], checkinfo['normal'], checkinfo['absence'], checkinfo['subnum']+checkinfo['approve'],
+        checkinfo['latenum'], checkinfo['leaveEarlier'], checkinfo['grade'])
         if int(checkinfo['grade']) != 100:
             print '未出勤学生详细信息如下:'
             for (key, item) in checkinfo['checkin'].items():

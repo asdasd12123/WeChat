@@ -39,11 +39,11 @@ class BashCheckIn(object):
                 elif localtime < Time[1]-60  and localtime > Time[1]-self.time:
                     print '您已超过考勤缓冲有效范围%d秒,学生所需的上传信息时间不足所以无法开启,你可设置考勤缓冲调整此时间!' % (localtime-Time[1] +self.time)
                 return False
-        status = raw_input(' 当前不是开启考勤的有效时间,您是否开启窗口? yes or other ')
+        status = raw_input(" 当前不是开启考勤的有效时间,您是否开启窗口? yes or other ")
         if status == 'yes':
-            self.status=True
-            self.start_time=localtime
-            self.end_time=localtime+6000
+            self.status = True
+            self.start_time = localtime
+            self.end_time = localtime+6000
             return True
         else:
             print '当前不是有效时间,开启考勤失败!'
@@ -114,12 +114,12 @@ class BashCheckIn(object):
                 print '您的输入不符合规则,请重新输入!'
                 continue
 
-            if num<=0 or num>100 or int(len(student_list) * num / 100)==0:
+            if num <= 0 or num > 100 or int(len(student_list) * num / 100) == 0:
                 print '抽点的数量大于或小于当前学生的数量请重新输入!'
                 time.sleep(1)
             else:
                 num = int(len(student_list) * num / 100)
-                print '抽点完成您此时共抽点了%-3d名学生!' %(num)
+                print '抽点完成您此时共抽点了%-3d名学生!' % ( num,)
                 break
 
         while len(stulist) != num:
@@ -135,8 +135,8 @@ class BashCheckIn(object):
             return False
 
         self.counter['auto'][stu_info['StuID']] -= 1
-        data = DataManage(DataManage.target_info,args=(self.filename,
-                                                {'checkinType': 'auto', 'StuID': stu_info['StuID']})).run()[0]
+        data = DataManage(DataManage.target_info, args=(self.filename, {'checkinType': 'auto',
+                                                                        'StuID': stu_info['StuID']})).run()[0]
 
         if data['IsSucc'] == 'True':
             print '您已经完成自动考勤无法再次考勤!'
